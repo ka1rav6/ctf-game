@@ -5,10 +5,10 @@
 #ifndef MAIN_GAME_TECTURECUBEMAP_H
 #define MAIN_GAME_TECTURECUBEMAP_H
 
-#include "Texture.h"
+#include "BaseTexture.h"
 
 
-class TextureCubemap : public Texture {
+class TextureCubemap : public BaseTexture {
 public:
     TextureCubemap(const std::vector<std::string>& faces);
     ~TextureCubemap();

@@ -4,9 +4,9 @@
 
 #ifndef MAIN_GAME_TEXTURE2D_H
 #define MAIN_GAME_TEXTURE2D_H
-#include "Texture.h"
+#include "BaseTexture.h"
 
-class Texture2D : public Texture {
+class Texture2D : public BaseTexture {
 public:
     Texture2D(const std::string& path);
     ~Texture2D();

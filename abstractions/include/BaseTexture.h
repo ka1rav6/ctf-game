@@ -6,9 +6,9 @@
 #define MAIN_GAME_TEXTURE_H
 #include "common.h"
 
-class Texture {
+class BaseTexture {
 public:
-    virtual ~Texture() = default;
+    virtual ~BaseTexture() = default;
 
     virtual void bind(GLenum slot = GL_TEXTURE0) const = 0;
     unsigned int id() const { return m_ID; }

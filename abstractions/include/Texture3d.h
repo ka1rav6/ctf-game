@@ -5,9 +5,9 @@
 #ifndef MAIN_GAME_TEXTURE3D_H
 #define MAIN_GAME_TEXTURE3D_H
 
-#include "Texture.h"
+#include "BaseTexture.h"
 
-class Texture3D : public Texture {
+class Texture3D : public BaseTexture {
 public:
     Texture3D(int width, int height, int depth, unsigned char* data);
     ~Texture3D();
