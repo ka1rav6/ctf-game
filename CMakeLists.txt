@@ -5,11 +5,26 @@ project(main_game)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# =========================
+# Dependencies
+# =========================
+
+find_package(OpenGL REQUIRED)
+find_package(glfw3 REQUIRED)
 find_package(Threads REQUIRED)
 find_package(assimp REQUIRED)
 
 # =========================
-# OpenGL abstraction library
+# GLM (header-only)
+# =========================
+
+add_library(glm INTERFACE)
+target_include_directories(glm INTERFACE
+        ${CMAKE_SOURCE_DIR}/external
+)
+
+# =========================
+# Abstractions Library
 # =========================
 
 file(GLOB ABSTRACTION_SRCS
@@ -17,62 +32,52 @@ file(GLOB ABSTRACTION_SRCS
         abstractions/src/*.c
 )
 
-add_library(abstractions STATIC
-        ${ABSTRACTION_SRCS}
-        abstractions/include/Mesh.h
-        abstractions/src/Mesh.cpp
-        abstractions/src/Model.cpp
-        abstractions/include/Model.h
+add_library(abstractions STATIC ${ABSTRACTION_SRCS})
+
+target_include_directories(abstractions
+        PUBLIC
+        ${CMAKE_SOURCE_DIR}/abstractions/include
+        ${CMAKE_SOURCE_DIR}/external
 )
 
-target_include_directories(abstractions PUBLIC
-        abstractions/include
-)
-
-target_link_libraries(abstractions PUBLIC
+target_link_libraries(abstractions
+        PUBLIC
+        glfw
+        OpenGL::GL
         assimp
+        glm
 )
 
 # =========================
-# Game core library
+# Game Sources
 # =========================
 
-add_library(game_core STATIC
-        src/gameState.cpp
-        src/Player.cpp
-        src/Point.cpp
+file(GLOB_RECURSE GAME_SRCS
+        src/*.cpp
 )
 
-target_include_directories(game_core PUBLIC
-        include
+add_library(game_core STATIC ${GAME_SRCS})
+
+target_include_directories(game_core
+        PUBLIC
+        ${CMAKE_SOURCE_DIR}/include
 )
 
-target_link_libraries(game_core PUBLIC
+target_link_libraries(game_core
+        PUBLIC
         abstractions
-)
-
-# =========================
-# Server
-# =========================
-
-add_executable(server
-        src/server_main.cpp
-)
-
-target_link_libraries(server PRIVATE
-        game_core
         Threads::Threads
 )
 
 # =========================
-# Client
+# Main Executable
 # =========================
 
-add_executable(client
-        src/client_main.cpp
+add_executable(main_game
+        main.cpp
 )
 
-target_link_libraries(client PRIVATE
+target_link_libraries(main_game
+        PRIVATE
         game_core
-        Threads::Threads
 )
