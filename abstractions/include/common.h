@@ -1,22 +1,27 @@
-//
-// Created by kairav on 6/5/26.
-//
+#ifndef COMMON_H
+#define COMMON_H
 
-#ifndef MAIN_GAME_COMMON_H
-#define MAIN_GAME_COMMON_H
-
+// STL
 #include <iostream>
+#include <string>
 #include <vector>
+#include <map>
+
+// OpenGL
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "stb_image.h"
+
+// GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+// Assimp
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
-#include <assimp/material.h>
 #include <assimp/postprocess.h>
 
+// Image loading
+#include "stb_image.h"
 
-#endif //MAIN_GAME_COMMON_H
+#endif

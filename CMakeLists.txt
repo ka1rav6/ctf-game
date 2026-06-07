@@ -32,7 +32,8 @@ file(GLOB ABSTRACTION_SRCS
         abstractions/src/*.c
 )
 
-add_library(abstractions STATIC ${ABSTRACTION_SRCS})
+add_library(abstractions STATIC ${ABSTRACTION_SRCS}
+        include/Logger.h)
 
 target_include_directories(abstractions
         PUBLIC
@@ -56,7 +57,8 @@ file(GLOB_RECURSE GAME_SRCS
         src/*.cpp
 )
 
-add_library(game_core STATIC ${GAME_SRCS})
+add_library(game_core STATIC ${GAME_SRCS}
+        src/Logger.cpp)
 
 target_include_directories(game_core
         PUBLIC
