@@ -11,7 +11,7 @@
 #include "./include/TextureCubeMap.h"
 #include "./include/shader.h"
 #include "./include/common.h"
-
+#include "./include/Camera.h"
 
 
 #endif //MAIN_GAME_PACKAGE_H
