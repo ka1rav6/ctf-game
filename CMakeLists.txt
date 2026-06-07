@@ -1,37 +1,75 @@
 cmake_minimum_required(VERSION 3.20)
+
 project(main_game)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# -------------------------
-# Collect source files automatically
-# -------------------------
-file(GLOB_RECURSE ENGINE_SOURCES
-        ${CMAKE_SOURCE_DIR}/abstractions/src/*.cpp
-        ${CMAKE_SOURCE_DIR}/abstractions/src/*.c
+find_package(Threads REQUIRED)
+
+# =========================
+# OpenGL abstraction library
+# =========================
+
+file(GLOB ABSTRACTION_SRCS
+    abstractions/src/*.cpp
+    abstractions/src/*.c
 )
 
-file(GLOB_RECURSE ENGINE_HEADERS
-        ${CMAKE_SOURCE_DIR}/abstractions/include/*.h
-        ${CMAKE_SOURCE_DIR}/abstractions/include/*.hpp
+add_library(abstractions STATIC
+    ${ABSTRACTION_SRCS}
 )
 
-# -------------------------
-# Engine library (my abstractions)
-# -------------------------
-add_library(engine STATIC
-        ${ENGINE_SOURCES}
-        ${ENGINE_HEADERS}
-        include/common.h
+target_include_directories(abstractions PUBLIC
+    abstractions/include
 )
 
-target_include_directories(engine PUBLIC
-        ${CMAKE_SOURCE_DIR}/abstractions/include
+# =========================
+# Game core library
+# =========================
+
+set(CORE_SRCS
+        src/gameState.cpp
+    src/Player.cpp
+    src/Point.cpp
 )
 
-# -------------------------
-# Main executable
-# -------------------------
-add_executable(main_game main.cpp)
+add_library(game_core STATIC
+    ${CORE_SRCS}
+)
 
-target_link_libraries(main_game PRIVATE engine)
+target_include_directories(game_core PUBLIC
+    include
+    src
+)
+
+target_link_libraries(game_core PUBLIC
+    abstractions
+)
+
+# =========================
+# Server
+# =========================
+
+add_executable(server
+    src/server_main.cpp
+)
+
+target_link_libraries(server PRIVATE
+    game_core
+    Threads::Threads
+)
+
+# =========================
+# Client
+# =========================
+
+add_executable(client
+    src/client_main.cpp
+)
+
+target_link_libraries(client PRIVATE
+    game_core
+    abstractions
+    Threads::Threads
+)
