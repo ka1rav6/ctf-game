@@ -37,3 +37,28 @@ void main()
 
     fragColor = vec4(color, 1.0);
 }
+/*
+
+/// IF SMOOTH FLOOR IS NEEDED INSTEAD (NOTE THE SHADOW IS NOT WORKING YET)
+#version 330 core
+
+in vec3 nearPoint;
+in vec3 farPoint;
+
+out vec4 fragColor;
+
+void main()
+{
+    float denom = (farPoint.y - nearPoint.y);
+    if (abs(denom) < 0.0001) discard;
+
+    float t = -nearPoint.y / denom;
+    if (t < 0.0) discard;
+
+    vec3 worldPos = nearPoint + t * (farPoint - nearPoint);
+
+    vec3 grass = vec3(0.10, 0.55, 0.20);
+
+    fragColor = vec4(grass, 1.0);
+}
+*/

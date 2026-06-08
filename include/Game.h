@@ -9,13 +9,14 @@
 #include "../src/components/InfiniteGrid.h"
 #include "../src/components/Sun.h"
 
+// storing all settings in a structure
 struct Settings {
     // basic screen settings
 
+    const glm::vec4 bgcolor = glm::vec4(0.53f, 0.81f, 0.92f, 1.0f); // Sky blue;
+    const char* WINDOW_TITLE = "CTF IIITD";
     const int SCR_WIDTH = 800;
     const int SCR_HEIGHT = 600;
-    const char* WINDOW_TITLE = "CTF IIITD";
-    const glm::vec4 bgcolor = glm::vec4(0.53f, 0.81f, 0.92f, 1.0f); // Sky blue;
 
     // Camera settings:
     glm::vec3 camera_position = glm::vec3(0.0f, 3.0f, 4.0f);
@@ -34,7 +35,7 @@ public:
     ~Game();
     void run();
     void cleanup();
-    void draw();
+    void draw(); // all rendering of all objects is here
     bool isRunning() const {
         return !glfwWindowShouldClose(window);
     };
@@ -43,25 +44,23 @@ private:
     static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
     static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
-    bool firstMouse = true;
     void init();
     Settings settings;
     GLFWwindow *window;
     Camera *camera;
     Timer timer;
-    InfiniteGrid* grid;
+    bool firstMouse = true;
 
 
     ///////// OBJECTS THAT WILL BE RENDERED
     Sun *sun;
-
-
+    InfiniteGrid* grid;
 
 
     ///////////// ALL VAOs, VBOs, EBOs
     unsigned int cubeVAO, VBO;
 };
-
+// cube vertices: (taken from learnopenGL directly for now)
 constexpr float vertices[] = {
     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
      0.5f, -0.5f, -0.5f,  1.0f, 0.0f,

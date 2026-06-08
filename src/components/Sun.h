@@ -7,19 +7,19 @@
 
 #include "../include/common.h"
 #include "../../include/common.h"
-
+// settings for the sun: shader files and sun position and scale
 struct SunSettings
 {
-    glm::vec3 sunOffset = glm::vec3(150.0f, 120.0f, -150.0f);
+    glm::vec3 sunOffset = glm::vec3(150.0f, 120.0f, -150.0f); // position in the sky
     std::string vShaderFile = "../src/components/shaders/Sun.vs";
     std::string fShaderFile = "../src/components/shaders/Sun.fs";
-    float scale = 20.0f;
+    float scale = 20.0f; // how big it looks
 };
 
 class Sun {
 private:
-    SunSettings settings;  // ← declared FIRST so it's initialized before shader
-    Shader shader; 
+    SunSettings settings;  // declared FIRST so it's initialized before shader
+    Shader shader;
     glm::vec3 position;
     glm::mat4 model;
     unsigned int cubeVAO;

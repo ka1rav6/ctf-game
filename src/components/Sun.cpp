@@ -4,11 +4,9 @@
 
 #include "Sun.h"
 
-Sun::Sun(unsigned int cubeVAO,
-         const SunSettings& settings)
+Sun::Sun(unsigned int cubeVAO, const SunSettings& settings)
     : settings(settings),
-      shader(settings.vShaderFile.c_str(),
-             settings.fShaderFile.c_str()),
+      shader(settings.vShaderFile.c_str(),settings.fShaderFile.c_str()),
       position(glm::vec3(0.0f)),
       model(glm::mat4(1.0f)),
       cubeVAO(cubeVAO)

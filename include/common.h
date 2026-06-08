@@ -4,7 +4,7 @@
 
 #ifndef MAIN_GAME_SRC_COMMON_H
 #define MAIN_GAME_SRC_COMMON_H
-
+///// COMMON FILE THAT INCLUDES ALL PACKAGES AND LIBRARIES/ MODULES
 
 #include "../abstractions/package.h"
 

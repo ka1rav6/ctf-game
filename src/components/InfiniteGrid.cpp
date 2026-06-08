@@ -2,7 +2,6 @@
 
 InfiniteGrid::InfiniteGrid(){
     shader = new Shader("../src/components/shaders/InfiniteGrid.vs","../src/components/shaders/InfiniteGrid.fs");
-    std::cout << "InfiniteGrid created" << std::endl;
     LOG_INFO("Shader for infinite grid created");
     glGenVertexArrays(1, &VAO);
 }
