@@ -61,7 +61,9 @@ file(GLOB_RECURSE GAME_SRCS
         src/*.cpp
 )
 
-add_library(game_core STATIC ${GAME_SRCS})
+add_library(game_core STATIC ${GAME_SRCS}
+        src/components/InfiniteGrid.cpp
+        src/components/InfiniteGrid.h)
 
 target_include_directories(game_core
         PUBLIC
