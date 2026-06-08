@@ -1,0 +1,86 @@
+# Build directories
+build/
+bin/
+out/
+dist/
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+CTestTestfile.cmake
+Testing/
+Makefile
+
+# Generated build systems
+*.ninja
+.ninja_deps
+.ninja_log
+
+# Object files
+*.o
+*.obj
+*.lo
+*.slo
+
+# Libraries
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Debug symbols
+*.pdb
+*.dSYM/
+
+# Coverage files
+*.gcda
+*.gcno
+*.gcov
+coverage/
+
+# Profiling
+gmon.out
+
+# IDEs
+.vscode/
+.idea/
+
+# Visual Studio
+.vs/
+*.vcxproj.user
+*.suo
+*.user
+
+# CLion
+cmake-build-*/
+
+# Qt
+*.pro.user
+moc_*
+ui_*.h
+qrc_*.cpp
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.bak
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+build/
+
