@@ -32,9 +32,7 @@ file(GLOB ABSTRACTION_SRCS
         abstractions/src/*.c
 )
 
-add_library(abstractions STATIC ${ABSTRACTION_SRCS}
-        include/Logger.h
-)
+add_library(abstractions STATIC ${ABSTRACTION_SRCS})
 
 target_include_directories(abstractions
         PUBLIC
@@ -58,11 +56,7 @@ file(GLOB_RECURSE GAME_SRCS
         src/*.cpp
 )
 
-add_library(game_core STATIC ${GAME_SRCS}
-        src/Logger.cpp
-        src/components/Sun.cpp
-        src/components/Sun.h
-)
+add_library(game_core STATIC ${GAME_SRCS})
 
 target_include_directories(game_core
         PUBLIC
@@ -81,8 +75,6 @@ target_link_libraries(game_core
 
 add_executable(main_game
         main.cpp
-        src/components/Sun.cpp
-        src/components/Sun.h
 )
 
 target_link_libraries(main_game

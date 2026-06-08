@@ -4,6 +4,7 @@
 
 #ifndef MAIN_GAME_TEXTURE3D_H
 #define MAIN_GAME_TEXTURE3D_H
+#include "stb_image.h"
 
 #include "BaseTexture.h"
 

@@ -1,6 +1,7 @@
 //
 // Created by kairav on 6/7/26.
 //
+#include "stb_image.h"
 
 #ifndef MAIN_GAME_MODEL_H
 #define MAIN_GAME_MODEL_H

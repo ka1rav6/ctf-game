@@ -21,7 +21,5 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-// Image loading
-#include "stb_image.h"
 
 #endif

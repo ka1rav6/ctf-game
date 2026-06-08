@@ -7,6 +7,7 @@
 
 #include "common.h"
 #include "shader.h"
+#include "stb_image.h"
 
 
 struct Vertex

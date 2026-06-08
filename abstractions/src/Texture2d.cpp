@@ -1,6 +1,5 @@
 #include "../include/Texture2d.h"
 
-
 Texture2D::Texture2D(const std::string& path)
 {
     glGenTextures(1, &m_ID);

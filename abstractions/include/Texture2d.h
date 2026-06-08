@@ -5,6 +5,7 @@
 #ifndef MAIN_GAME_TEXTURE2D_H
 #define MAIN_GAME_TEXTURE2D_H
 #include "BaseTexture.h"
+#include "stb_image.h"
 
 class Texture2D : public BaseTexture {
 public:

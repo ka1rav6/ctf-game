@@ -8,18 +8,20 @@
 
 Game::Game(bool mouseCaptured) {
     init();
+    LOG_INFO("init function completely executed");
     if (!this->window)
         LOG_FATAL("Failed to execute Game::init() function. Window not created!");
     if (mouseCaptured) {
         glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
-    glfwSetCursorPosCallback(window, Game::mouse_callback);
-    glfwSetScrollCallback(window, Game::scroll_callback);
+    glfwSetCursorPosCallback(this->window, Game::mouse_callback);
+    glfwSetScrollCallback(this->window, Game::scroll_callback);
     LOG_INFO("Set all different callbacks successfully!");
 }
 
 void Game::init() {
     this->window = Initializer::init(settings.SCR_WIDTH, settings.SCR_HEIGHT, settings.WINDOW_TITLE);
+    glfwMakeContextCurrent(this->window);
     glfwSetWindowUserPointer(this->window, this);
     glEnable(GL_DEPTH_TEST);
 
@@ -42,10 +44,7 @@ void Game::init() {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-
-
-
-
+    LOG_INFO("About to initialize Sun");
     sun = new Sun(cubeVAO);
 
 }
@@ -65,7 +64,7 @@ Game::~Game() {
 
 void Game::processInput() {
     if (glfwGetKey(this->window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
+        glfwSetWindowShouldClose(this->window, true);
 
     if (glfwGetKey(this->window, GLFW_KEY_W) == GLFW_PRESS)
         camera->ProcessKeyboard(FORWARD, timer.deltaTime);

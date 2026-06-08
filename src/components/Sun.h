@@ -5,6 +5,7 @@
 #ifndef MAIN_GAME_SUN_H
 #define MAIN_GAME_SUN_H
 
+#include "../include/common.h"
 #include "../../include/common.h"
 
 struct SunSettings
@@ -15,20 +16,18 @@ struct SunSettings
     float scale = 20.0f;
 };
 
-class Sun{
+class Sun {
 private:
-    Shader shader;
-    SunSettings settings;
+    SunSettings settings;  // ← declared FIRST so it's initialized before shader
+    Shader shader; 
     glm::vec3 position;
     glm::mat4 model;
     unsigned int cubeVAO;
 public:
-    Sun(unsigned int cubeVAO,  const SunSettings& settings = SunSettings());
+    Sun(unsigned int cubeVAO, const SunSettings& settings = SunSettings());
     void update(Camera& camera);
     void render(Camera& camera, const glm::mat4& projection);
-    glm::vec3 getPosition() const{
-        return position;
-    }
+    glm::vec3 getPosition() const { return position; }
 };
 
 #endif // MAIN_GAME_SUN_H

@@ -3,9 +3,9 @@
 
 #include "../include/shader.h"
 
-
 Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
 {
+    std::cout << "Creating a new Shader" << std::endl;
     std::string vertexCode;
     std::string fragmentCode;
     std::ifstream vShaderFile;
@@ -14,8 +14,11 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
     vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
+    bool fileReadSuccess = true;
+
     try
     {
+        std::cout << "Trying to open files: " << vertexPath << " | " << fragmentPath << std::endl;
         vShaderFile.open(vertexPath);
         fShaderFile.open(fragmentPath);
         std::stringstream vShaderStream, fShaderStream;
@@ -25,10 +28,21 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
         fShaderFile.close();
         vertexCode   = vShaderStream.str();
         fragmentCode = fShaderStream.str();
+        std::cout << "Successfully opened and read shader files" << std::endl;
     }
     catch (std::ifstream::failure& e)
     {
         std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << e.what() << std::endl;
+        fileReadSuccess = false;
+    }
+
+    // Guard: don't call any GL functions with empty/invalid source
+    if (!fileReadSuccess || vertexCode.empty() || fragmentCode.empty())
+    {
+        std::cout << "ERROR::SHADER: Aborting — shader source is empty for: "
+                  << vertexPath << " / " << fragmentPath << std::endl;
+        ID = 0;
+        return;
     }
 
     const char* vShaderCode = vertexCode.c_str();
@@ -37,18 +51,21 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
     unsigned int vertex, fragment;
 
     // ---- Vertex Shader ----
+    std::cout << "Compiling Vertex shader" << std::endl;
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vShaderCode, NULL);
     glCompileShader(vertex);
     checkCompileErrors(vertex, "VERTEX");
 
-    // ---- Fragment Shader ---- (THIS WAS MISSING IN YOUR CODE)
+    // ---- Fragment Shader ----
+    std::cout << "Compiling Fragment shader" << std::endl;
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fShaderCode, NULL);
     glCompileShader(fragment);
     checkCompileErrors(fragment, "FRAGMENT");
 
     // ---- Shader Program ----
+    std::cout << "Linking shader program" << std::endl;
     ID = glCreateProgram();
     glAttachShader(ID, vertex);
     glAttachShader(ID, fragment);
@@ -57,7 +74,9 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
 
     glDeleteShader(vertex);
     glDeleteShader(fragment);
+    std::cout << "Successfully created shader. Program ID: " << ID << std::endl;
 }
+
 void Shader::use()
 {
     glUseProgram(ID);
@@ -73,6 +92,14 @@ void Shader::setInt(const std::string &name, int value) const
 void Shader::setFloat(const std::string &name, float value) const
 {
     glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+}
+void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const
+{
+    glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
+}
+void Shader::setVec3(const std::string &name, float v1, float v2, float v3) const
+{
+    glUniform3f(glGetUniformLocation(ID, name.c_str()), v1, v2, v3);
 }
 void Shader::checkCompileErrors(unsigned int shader, std::string type)
 {
@@ -98,11 +125,4 @@ void Shader::checkCompileErrors(unsigned int shader, std::string type)
                       << infoLog << std::endl;
         }
     }
-}
-void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const
-{
-    glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
-}
-void Shader::setVec3(const std::string &name, float v1, float v2, float v3) const {
-    glUniform3f(glGetUniformLocation(ID, name.c_str()), v1, v2, v3);
 }

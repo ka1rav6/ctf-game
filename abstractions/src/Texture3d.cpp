@@ -1,4 +1,5 @@
 #include "../include/Texture3d.h"
+#include "stb_image.h"
 
 
 Texture3D::Texture3D(int width, int height, int depth, unsigned char* data)
