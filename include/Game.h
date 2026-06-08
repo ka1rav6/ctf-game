@@ -6,6 +6,7 @@
 #define MAIN_GAME_GAME_H
 #include <string>
 #include "../include/common.h"
+#include "../src/components/InfiniteGrid.h"
 #include "../src/components/Sun.h"
 
 struct Settings {
@@ -48,7 +49,7 @@ private:
     GLFWwindow *window;
     Camera *camera;
     Timer timer;
-
+    InfiniteGrid* grid;
 
 
     ///////// OBJECTS THAT WILL BE RENDERED

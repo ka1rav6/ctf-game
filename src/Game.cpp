@@ -24,16 +24,11 @@ void Game::init() {
     glfwMakeContextCurrent(this->window);
     glfwSetWindowUserPointer(this->window, this);
     glEnable(GL_DEPTH_TEST);
-
     camera = new Camera(settings.camera_position);
     LOG_INFO("Created window and camera userpointer!");
-
     glGenVertexArrays(1, &cubeVAO);
     glGenBuffers(1, &VBO);
-
-
     glBindVertexArray(cubeVAO);
-
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
@@ -45,8 +40,10 @@ void Game::init() {
     glEnableVertexAttribArray(1);
 
     LOG_INFO("About to initialize Sun");
-    sun = new Sun(cubeVAO);
-
+    this->sun = new Sun(cubeVAO);
+    LOG_INFO("Created Sun");
+    this->grid = new InfiniteGrid();
+    LOG_INFO("Created Grid");
 }
 
 Game::~Game() {
@@ -54,7 +51,8 @@ Game::~Game() {
     camera = nullptr;
     delete sun;
     sun = nullptr;
-
+    delete grid;
+    grid = nullptr;
     // free all VBOs, VAOs, and EBOs
     glDeleteVertexArrays(1, &cubeVAO);
     glDeleteBuffers(1, &VBO);
@@ -76,14 +74,11 @@ void Game::processInput() {
         camera->ProcessKeyboard(RIGHT, timer.deltaTime);
 }
 
-void Game::mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
-{
+void Game::mouse_callback(GLFWwindow* window, double xposIn, double yposIn){
     Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
     if (!game) return;
-
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
-
     if (game->firstMouse)
     {
         game->settings.lastX = xpos;
@@ -96,31 +91,21 @@ void Game::mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 
     game->settings.lastX = xpos;
     game->settings.lastY = ypos;
-
     game->camera->ProcessMouseMovement(xoffset, yoffset);
 }
-void Game::scroll_callback(GLFWwindow* window, double, double yoffset)
-{
+void Game::scroll_callback(GLFWwindow* window, double, double yoffset) {
     Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
     if (!game) return;
-
     game->camera->ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
 
 
-void Game::run()
-{
-    while(isRunning())
-    {
-        float currentFrame =
-            static_cast<float>(glfwGetTime());
-
-        timer.deltaTime =
-            currentFrame - timer.lastFrame;
-
-        timer.lastFrame =
-            currentFrame;
+void Game::run(){
+    while(isRunning()){
+        float currentFrame = static_cast<float>(glfwGetTime());
+        timer.deltaTime = currentFrame - timer.lastFrame;
+        timer.lastFrame = currentFrame;
 
         processInput();
 
@@ -130,12 +115,7 @@ void Game::run()
             settings.bgcolor.b,
             settings.bgcolor.a
         );
-
-        glClear(
-            GL_COLOR_BUFFER_BIT |
-            GL_DEPTH_BUFFER_BIT
-        );
-
+        glClear(GL_COLOR_BUFFER_BIT |GL_DEPTH_BUFFER_BIT);
         glm::mat4 projection =
             glm::perspective(
                 glm::radians(camera->Zoom),
@@ -144,9 +124,10 @@ void Game::run()
                 0.1f,
                 1000.0f
             );
-
         sun->update(*camera);
         sun->render(*camera, projection);
+        grid->render(*camera, projection, 0.1f, 1000.0f);
+
 
         glfwSwapBuffers(window);
         glfwPollEvents();
