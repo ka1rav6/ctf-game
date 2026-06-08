@@ -16,7 +16,7 @@ InfiniteGrid::~InfiniteGrid(){
 void InfiniteGrid::render(Camera& camera, const glm::mat4& projection, float nearPlane, float farPlane){
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    LOG_INFO("Infinite Grid rendering now");
+    // LOG_INFO("Infinite Grid rendering now");
     shader->use();
     shader->setMat4("view",camera.GetViewMatrix());
     shader->setMat4("projection", projection);

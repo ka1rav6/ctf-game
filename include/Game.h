@@ -18,7 +18,7 @@ struct Settings {
     const glm::vec4 bgcolor = glm::vec4(0.53f, 0.81f, 0.92f, 1.0f); // Sky blue;
 
     // Camera settings:
-    glm::vec3 camera_position = glm::vec3(0.0f, 0.0f, 4.0f);
+    glm::vec3 camera_position = glm::vec3(0.0f, 3.0f, 4.0f);
     float lastX = (float)SCR_WIDTH / 2.0f;
     float lastY = (float)SCR_HEIGHT / 2.0f;
 };
