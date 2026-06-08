@@ -5,7 +5,7 @@
 #ifndef MAIN_GAME_INFINITEGRID_H
 #define MAIN_GAME_INFINITEGRID_H
 #include "../include/common.h"
-
+#include "../include/Logger.h"
 class InfiniteGrid {
 public:
     InfiniteGrid();
@@ -13,7 +13,7 @@ public:
     void render(Camera& camera, const glm::mat4& projection, float nearPlane, float farPlane);
 private:
     Shader* shader = nullptr;
-    unsigned int VAO;   // empty VAO
+    unsigned int VAO{};   // empty VAO
 };
 
 
