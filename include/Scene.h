@@ -1,0 +1,23 @@
+//
+// Created by kairav on 6/9/26.
+//
+
+#ifndef MAIN_GAME_SCENE_H
+#define MAIN_GAME_SCENE_H
+#include "../include/common.h"
+#include "../external/entt/entt.hpp"
+
+class Entity;
+class Scene {
+public:
+    Scene();
+    ~Scene();
+    Entity createEntity();
+
+private:
+    entt::registry reg;
+    friend class Entity;
+};
+
+
+#endif //MAIN_GAME_SCENE_H
