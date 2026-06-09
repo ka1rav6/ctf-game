@@ -46,6 +46,8 @@ private:
 
     void init();
     Model *skyIsland;
+    Model* tree;
+    Shader* treeShader;
     Shader *modelShader;
     Settings settings;
     GLFWwindow *window;
