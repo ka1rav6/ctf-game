@@ -22,4 +22,6 @@
 #include <assimp/postprocess.h>
 #include "Logger.h"
 
+#include <entt/entt.hpp>
+
 #endif //MAIN_GAME_SRC_COMMON_H
