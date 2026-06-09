@@ -11,6 +11,7 @@ struct Transform{
     glm::vec3 position{0.0f};
     glm::vec3 rotation{0.0f};
     glm::vec3 scale{1.0f};
+    Shader* shader;
 };
 struct IDComponent{
     uint64_t id;
@@ -21,6 +22,8 @@ struct TagComponent{
 
 struct MeshRenderer{
     std::string meshPath;
+    Shader* shader;
+    Model* model;
 };
 
 struct Rigidbody{

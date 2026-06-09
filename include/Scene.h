@@ -6,7 +6,7 @@
 #define MAIN_GAME_SCENE_H
 #include "../include/common.h"
 #include "../external/entt/entt.hpp"
-
+#include "../include/Entity_Components.h"
 class Entity;
 class Scene {
 public:

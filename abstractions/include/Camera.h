@@ -40,7 +40,9 @@ public:
     float MovementSpeed;
     float MouseSensitivity;
     float Zoom;
-
+    float AspectRatio = 16.0f / 9.0f;
+    float NearPlane = 0.1f;
+    float FarPlane = 1000.0f;
     // constructor with vectors
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
     {
@@ -59,7 +61,10 @@ public:
         Pitch = pitch;
         updateCameraVectors();
     }
-
+    glm::mat4 getProjectionMatrix() const
+    {
+        return glm::perspective(glm::radians(Zoom),AspectRatio,NearPlane,FarPlane);
+    }
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
     glm::mat4 GetViewMatrix()
     {
@@ -111,6 +116,8 @@ public:
         if (Zoom > 45.0f)
             Zoom = 45.0f;
     }
+
+
 
 private:
     // calculates the front vector from the Camera's (updated) Euler Angles
