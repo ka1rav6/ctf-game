@@ -12,7 +12,7 @@ Entity::Entity(entt::entity e, Scene* scene) {
     this->scene = scene;
     this->handle = e;
 }
-
+// used ai here as i didnt know how multiple arguments are used in c++
 template<typename T, typename... Args>
 T& Entity::addComponent(Args&&... args){
     return scene->reg.emplace<T>(

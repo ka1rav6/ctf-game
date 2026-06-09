@@ -4,15 +4,16 @@
 
 #include "Renderer.h"
 #include "../include/Entity_Components.h"
-void Renderer::render(Scene& scene, Camera& camera)
-{
+void Renderer::render(Scene& scene, Camera& camera){
     auto& registry = scene.getReg();
 
     auto view = registry.view< Transform, MeshRenderer>();
     for(auto entity : view) {
+        // get the transform component and mesh renderer component of each entity and render it
         auto& transform = view.get<Transform>(entity);
         auto& renderer = view.get<MeshRenderer>(entity);
 
+        // if the entity doesnt exist then just continue
         if(!renderer.model || !renderer.shader)
             continue;
 
@@ -20,6 +21,7 @@ void Renderer::render(Scene& scene, Camera& camera)
 
         glm::mat4 model(1.0f);
 
+        // changing position according to the transform struct
         model = glm::translate(model, transform.position);
 
         model = glm::rotate(model,glm::radians(transform.rotation.x),glm::vec3(1,0,0));
