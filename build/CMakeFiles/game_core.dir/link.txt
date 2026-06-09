@@ -1,2 +1,0 @@
-/usr/bin/ar qc libgame_core.a CMakeFiles/game_core.dir/src/Game.cpp.o CMakeFiles/game_core.dir/src/Logger.cpp.o CMakeFiles/game_core.dir/src/components/InfiniteGrid.cpp.o CMakeFiles/game_core.dir/src/components/Sun.cpp.o
-/usr/bin/ranlib libgame_core.a
