@@ -12,6 +12,12 @@ struct Transform{
     glm::vec3 rotation{0.0f};
     glm::vec3 scale{1.0f};
 };
+struct IDComponent{
+    uint64_t id;
+};
+struct TagComponent{
+    std::string name;
+};
 
 struct MeshRenderer{
     std::string meshPath;
