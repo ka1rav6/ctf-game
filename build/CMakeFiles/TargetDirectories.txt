@@ -1,5 +1,0 @@
-/home/kairav/dev/byld/main_game/build/CMakeFiles/abstractions.dir
-/home/kairav/dev/byld/main_game/build/CMakeFiles/game_core.dir
-/home/kairav/dev/byld/main_game/build/CMakeFiles/main_game.dir
-/home/kairav/dev/byld/main_game/build/CMakeFiles/edit_cache.dir
-/home/kairav/dev/byld/main_game/build/CMakeFiles/rebuild_cache.dir
