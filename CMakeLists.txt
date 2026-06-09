@@ -21,7 +21,9 @@ file(GLOB_RECURSE ABSTRACTION_SRCS CONFIGURE_DEPENDS
         abstractions/src/*.c
 )
 
-add_library(abstractions STATIC ${ABSTRACTION_SRCS})
+add_library(abstractions STATIC ${ABSTRACTION_SRCS}
+        include/systems/Renderer.cpp
+        include/systems/Renderer.h)
 
 target_include_directories(abstractions
         PUBLIC
