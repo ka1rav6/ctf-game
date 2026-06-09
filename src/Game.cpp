@@ -50,6 +50,8 @@ void Game::init() {
     LOG_INFO("Created Grid");
     skyIsland = new Model("../external/models/sky_islands/scene.gltf");
     modelShader = new Shader("../src/components/shaders/Model.vs","../src/components/shaders/Model.fs");
+    tree = new Model ("../external/models/maple_tree/scene.gltf");
+    treeShader = new Shader("../src/components/shaders/tree.vs","../src/components/shaders/tree.fs");
 }
 
 Game::~Game() {
@@ -59,6 +61,10 @@ Game::~Game() {
     sun = nullptr;
     delete grid;
     grid = nullptr;
+    delete skyIsland;
+    skyIsland = nullptr;
+    delete tree;
+    tree = nullptr;
     LOG_WARN("All member pointers deleted and dangling pointers assigned nullptr");
     // free all VBOs, VAOs, and EBOs
     glDeleteVertexArrays(1, &cubeVAO);
@@ -109,6 +115,22 @@ void Game::scroll_callback(GLFWwindow* window, double, double yoffset) {
 
 
 void Game::run(){
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glm::vec3 min(FLT_MAX);
+    glm::vec3 max(-FLT_MAX);
+
+    for (auto& mesh : tree->meshes)
+    {
+        for (auto& v : mesh.vertices)
+        {
+            min = glm::min(min, v.Position);
+            max = glm::max(max, v.Position);
+        }
+    }
+
+    std::cout << "Min: " << min.x << " " << min.y << " " << min.z << '\n';
+    std::cout << "Max: " << max.x << " " << max.y << " " << max.z << '\n';
     while(isRunning()){
         float currentFrame = static_cast<float>(glfwGetTime());
         timer.deltaTime = currentFrame - timer.lastFrame;
@@ -141,17 +163,31 @@ void Game::draw() {
         );
     sun->update(*camera);
     sun->render(*camera, projection);
-    grid->render(*camera, projection, 0.1f, 1000.0f);
+    treeShader->use();
 
-    // if (skyIsland) {
-    //     modelShader->use();
-    //     glm::mat4 model = glm::mat4(1.0f);
-    //     model = glm::translate(model, glm::vec3(0.0f, 1.0f, 0.0f));
-    //     model = glm::scale(model, glm::vec3(1.0f)); // VERY important for Sketchfab
-    //     modelShader->setMat4("model", model);
-    //     modelShader->setMat4("view", camera->GetViewMatrix());
-    //     modelShader->setMat4("projection", projection);
-    //     skyIsland->Draw(*modelShader);
-    // }
+    treeShader->setMat4("projection", projection);
+    treeShader->setMat4("view", camera->GetViewMatrix());
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::scale(model, glm::vec3(0.01f));
+    model = glm::rotate(model,glm::radians(-90.0f),glm::vec3(1.0f, 0.0f, 0.0f));
+
+    treeShader->setMat4("model", model);
+    glDisable(GL_BLEND);
+    glDisable(GL_CULL_FACE);
+
+    // optional but good for debugging
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    tree->Draw(*treeShader);
+
+    // restore state for rest of engine
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_CULL_FACE);
+    glDepthMask(GL_FALSE);
+    glDepthFunc(GL_LEQUAL);
+    grid->render(*camera, projection, 0.1f, 1000.0f);
+    glDepthMask(GL_TRUE);
+
 
 }
