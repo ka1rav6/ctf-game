@@ -12,6 +12,13 @@
 #include "./include/shader.h"
 #include "./include/common.h"
 #include "./include/Camera.h"
+#include "./include/Model.h"
+#include "./include/Mesh.h"
+
+
+
+
+
 
 
 #endif //MAIN_GAME_PACKAGE_H

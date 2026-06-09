@@ -17,6 +17,8 @@ public:
     void setFloat(const std::string &name, float value) const;
     void setMat4(const std::string &name, const glm::mat4 &mat) const;
     void setVec3(const std::string &name, float v1, float v2, float v3) const;
+    void setVec4(const std::string &name, float v1, float v2, float v3, float v4) const;
+
 private:
     static void checkCompileErrors(unsigned int, std::string);
 };

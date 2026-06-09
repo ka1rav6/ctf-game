@@ -8,6 +8,11 @@ bool Entity::valid() const{
     return scene &&
            scene->reg.valid(handle);
 }
+Entity::Entity(entt::entity e, Scene* scene) {
+    this->scene = scene;
+    this->handle = e;
+}
+
 template<typename T, typename... Args>
 T& Entity::addComponent(Args&&... args){
     return scene->reg.emplace<T>(
