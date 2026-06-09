@@ -7,6 +7,7 @@
 #include "../include/common.h"
 class Scene;
 class Entity {
+public:
     Entity() = default;
     Entity(entt::entity, Scene* scene);
     ~Entity() = default;
