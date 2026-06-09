@@ -2,42 +2,24 @@ cmake_minimum_required(VERSION 3.20)
 
 project(main_game)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Debug)
-endif()
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# =========================
-# Dependencies
-# =========================
-
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
-find_package(Threads REQUIRED)
 find_package(assimp REQUIRED)
 
 # =========================
-# GLM (header-only)
+# Abstractions library
 # =========================
 
-add_library(glm INTERFACE)
-target_include_directories(glm INTERFACE
-        ${CMAKE_SOURCE_DIR}/external
-)
-
-# =========================
-# Abstractions Library
-# =========================
-
-file(GLOB ABSTRACTION_SRCS
+file(GLOB_RECURSE ABSTRACTION_SRCS
         abstractions/src/*.cpp
         abstractions/src/*.c
 )
 
-add_library(abstractions STATIC ${ABSTRACTION_SRCS})
+add_library(abstractions STATIC ${ABSTRACTION_SRCS}
+        include/Entity_Components.h)
 
 target_include_directories(abstractions
         PUBLIC
@@ -47,44 +29,33 @@ target_include_directories(abstractions
 
 target_link_libraries(abstractions
         PUBLIC
-        glfw
         OpenGL::GL
+        glfw
         assimp
-        glm
 )
 
+#target_include_directories(main_game PRIVATE external/entt/)
 # =========================
-# Game Sources
+# Main Game
 # =========================
 
 file(GLOB_RECURSE GAME_SRCS
         src/*.cpp
 )
 
-add_library(game_core STATIC ${GAME_SRCS}
-        src/components/InfiniteGrid.cpp
-        src/components/InfiniteGrid.h)
-
-target_include_directories(game_core
-        PUBLIC
-        ${CMAKE_SOURCE_DIR}/include
-)
-
-target_link_libraries(game_core
-        PUBLIC
-        abstractions
-        Threads::Threads
-)
-
-# =========================
-# Main Executable
-# =========================
-
 add_executable(main_game
         main.cpp
+        ${GAME_SRCS}
+        src/Entity.cpp
+        include/Entity.h
+)
+
+target_include_directories(main_game
+        PRIVATE
+        ${CMAKE_SOURCE_DIR}/include
 )
 
 target_link_libraries(main_game
         PRIVATE
-        game_core
+        abstractions
 )
