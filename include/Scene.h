@@ -13,7 +13,7 @@ public:
     Scene();
     ~Scene();
     Entity createEntity();
-
+    entt::registry& getReg(){ return this->reg; };
 private:
     entt::registry reg;
     friend class Entity;
