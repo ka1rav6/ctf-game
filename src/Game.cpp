@@ -17,6 +17,7 @@ Game::Game(bool mouseCaptured) {
     glfwSetCursorPosCallback(this->window, Game::mouse_callback);
     glfwSetScrollCallback(this->window, Game::scroll_callback);
     LOG_INFO("Set all different callbacks successfully!");
+
 }
 
 void Game::init() {
@@ -47,6 +48,8 @@ void Game::init() {
     LOG_INFO("Created Sun");
     this->grid = new InfiniteGrid();
     LOG_INFO("Created Grid");
+    skyIsland = new Model("../external/models/sky_islands/scene.gltf");
+    modelShader = new Shader("../src/components/shaders/Model.vs","../src/components/shaders/Model.fs");
 }
 
 Game::~Game() {
@@ -139,4 +142,16 @@ void Game::draw() {
     sun->update(*camera);
     sun->render(*camera, projection);
     grid->render(*camera, projection, 0.1f, 1000.0f);
+
+    // if (skyIsland) {
+    //     modelShader->use();
+    //     glm::mat4 model = glm::mat4(1.0f);
+    //     model = glm::translate(model, glm::vec3(0.0f, 1.0f, 0.0f));
+    //     model = glm::scale(model, glm::vec3(1.0f)); // VERY important for Sketchfab
+    //     modelShader->setMat4("model", model);
+    //     modelShader->setMat4("view", camera->GetViewMatrix());
+    //     modelShader->setMat4("projection", projection);
+    //     skyIsland->Draw(*modelShader);
+    // }
+
 }

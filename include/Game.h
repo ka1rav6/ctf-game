@@ -45,6 +45,8 @@ private:
     static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
     void init();
+    Model *skyIsland;
+    Shader *modelShader;
     Settings settings;
     GLFWwindow *window;
     Camera *camera;
