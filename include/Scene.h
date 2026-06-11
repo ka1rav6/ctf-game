@@ -23,8 +23,8 @@ public:
 private:
     entt::registry reg;
     Entity createGround();
-    Entity createTree();
-    Entity createTestCube();
+    Entity createTree(glm::vec3 pos);
+    Entity createTestCube(glm::vec3 pos);
     Entity createSun(unsigned int cubeVAO);
     Entity createGrid();
     friend class Entity;

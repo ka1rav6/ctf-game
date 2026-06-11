@@ -15,10 +15,15 @@
 Scene::Scene(unsigned int cubeVAO) {
     // Creates each game entity with its components.
     createGround();
-    createTree();
+    createTree(glm::vec3(0.0f, 0.0f, 0.0f));
     createSun(cubeVAO);
     createGrid();
-    createTestCube();
+    for (float i = 0.0f; i < 10.0f; i++) {
+        createTestCube(glm::vec3(i, 15.0f, 0.0f));
+    }
+    for (float i = 0.0f; i < 10.0f; i++) {
+        createTestCube(glm::vec3(0.0f, 15.0f, i));
+    }
     LOG_INFO("Scene: all entities created");
 }
 
@@ -63,7 +68,7 @@ void Scene::update(Camera& camera) {
 Entity Scene::createGround() {
     Entity ground = createEntity();
     auto& transform = ground.addComponent<TransformComponent>();
-    transform.position = {0.0f, -1.0f, 0.0f};
+    transform.position = {0.0f, 0.0f, 0.0f};
     auto& rb = ground.addComponent<RigidBodyComponent>();
     using namespace reactphysics3d;
     Transform physicsTransform(
@@ -77,11 +82,11 @@ Entity Scene::createGround() {
     rb.body->addCollider(shape, Transform::identity());
     return ground;
 }
-Entity Scene::createTree() {
+Entity Scene::createTree(glm::vec3 pos) {
     Entity tree = createEntity();
     tree.addComponent<TagComponent>(TagComponent{"Tree"});
     auto& transform = tree.addComponent<TransformComponent>();
-    transform.position = glm::vec3(0.0f);
+    transform.position = pos;
     transform.rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
     transform.scale    = glm::vec3(0.01f);
     // RIGID BODY PHYSICS
@@ -121,13 +126,15 @@ Entity Scene::createGrid() {
     LOG_INFO("Scene: Grid entity created");
     return gridEntity;
 }
-Entity Scene::createTestCube() {
+Entity Scene::createTestCube(glm::vec3 pos) {
+    // std::string warnStr ="Scene: Cube entity created" + std::to_string(pos.x) + " " + std::to_string(pos.y) + " " + std::to_string(pos.z);
+    // LOG_WARN(warnStr);
     Entity cube = createEntity();
     LOG_WARN("TEST CUBE CREATED");
     auto& transform = cube.addComponent<TransformComponent>();
-    transform.position = {0.0f, 15.0f, 0.0f};
+    transform.position = pos;
     transform.scale = glm::vec3(0.1f);
-    // transform.scale    = glm::vec3(0.f);
+
     auto& meshRenderer = cube.addComponent<MeshRendererComponent>();
     meshRenderer.model  = new Model("../external/models/cube/scene.gltf"); // or any simple cube
     meshRenderer.shader = new Shader(
@@ -138,7 +145,7 @@ Entity Scene::createTestCube() {
     auto& rb = cube.addComponent<RigidBodyComponent>();
     using namespace reactphysics3d;
     Transform t(
-        Vector3(0, 15, 0),
+        Vector3(pos.x, pos.y, pos.z),
         Quaternion::identity()
     );
     rb.body = engine.world->createRigidBody(t);

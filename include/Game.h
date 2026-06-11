@@ -17,7 +17,7 @@ struct Settings {
     const int SCR_HEIGHT = 600;
 
     // Camera settings:
-    glm::vec3 camera_position = glm::vec3(0.0f, 3.0f, 4.0f);
+    glm::vec3 camera_position = glm::vec3(0.0f, 1.0f, 4.0f);
     float lastX = (float)SCR_WIDTH / 2.0f;
     float lastY = (float)SCR_HEIGHT / 2.0f;
 };
