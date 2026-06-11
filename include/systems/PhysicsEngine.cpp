@@ -3,6 +3,7 @@
 //
 
 #include "PhysicsEngine.h"
+#include "../include/Scene.h"
 // PhysicsSystem.cpp
 
 PhysicsEngine::PhysicsEngine() {
@@ -13,9 +14,33 @@ PhysicsEngine::PhysicsEngine() {
     auto sphereShape = pCommon.createSphereShape(10);
 }
 
-void PhysicsEngine::update(float dt) {
+void PhysicsEngine::update(Scene& scene) {
     world->update(dt);
+    syncToECS(scene);
 }
 PhysicsEngine::~PhysicsEngine() {
     pCommon.destroyPhysicsWorld(world);
+}
+
+
+#include "PhysicsEngine.h"
+#include "../include/Scene.h"
+#include "../include/Entity_Components.h"
+
+void PhysicsEngine::syncToECS(Scene& scene) {
+    auto& registry = scene.getReg();
+    auto view = registry.view<TransformComponent, RigidBodyComponent>();
+    for (auto entity : view) {
+        auto& transform = view.get<TransformComponent>(entity);
+        auto& rb = view.get<RigidBodyComponent>(entity);
+        if (!rb.body) continue;
+        using namespace reactphysics3d;
+        Transform t = rb.body->getTransform();
+        Vector3 p = t.getPosition();
+        Quaternion q = t.getOrientation();
+        transform.position = {p.x, p.y, p.z};
+        glm::quat quat(q.w, q.x, q.y, q.z);
+        glm::vec3 euler = glm::eulerAngles(quat);
+        transform.rotation = glm::degrees(euler);
+    }
 }
