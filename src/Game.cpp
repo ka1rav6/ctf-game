@@ -24,7 +24,7 @@
 
 #include "../include/Game.h"
 
-
+// game constructor : calls priate init() function
 Game::Game(bool mouseCaptured) {
     init();
     LOG_INFO("init function completely executed");
@@ -38,9 +38,12 @@ Game::Game(bool mouseCaptured) {
     LOG_INFO("Set all different callbacks successfully!");
 }
 
-
+// initializes the window and all other member ptrs
 void Game::init() {
     this->window = Initializer::init(settings.SCR_WIDTH, settings.SCR_HEIGHT, settings.WINDOW_TITLE);
+    if (!this->window) {
+        LOG_FATAL("Failed to initialize window!");
+    }
     glfwMakeContextCurrent(this->window);
     glfwSetWindowUserPointer(this->window, this);
     glEnable(GL_DEPTH_TEST);
@@ -66,7 +69,7 @@ void Game::init() {
     this->renderer = new Renderer();
     LOG_INFO("Renderer system created");
 }
-
+// destructor to avoid memory leaks
 Game::~Game() {
     delete scene;
     scene = nullptr; // again: removing dangling ptrs coz I have ocd
@@ -75,12 +78,13 @@ Game::~Game() {
     delete camera;
     camera = nullptr;
     LOG_WARN("All member pointers deleted and dangling pointers assigned nullptr");
+    // glfw closed and cleaned
     glDeleteVertexArrays(1, &cubeVAO);
     glDeleteBuffers(1, &VBO);
     glfwTerminate();
 }
-
-void Game::processInput() {
+// process the input of ECS key and mouse
+void Game::processInput() const {
     if (glfwGetKey(this->window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(this->window, true);
     if (glfwGetKey(this->window, GLFW_KEY_W) == GLFW_PRESS)
@@ -92,7 +96,7 @@ void Game::processInput() {
     if (glfwGetKey(this->window, GLFW_KEY_D) == GLFW_PRESS)
         camera->ProcessKeyboard(RIGHT, timer.deltaTime);
 }
-
+// function for deciding what happens with the mouse movements
 void Game::mouse_callback(GLFWwindow* window, double xposIn, double yposIn){
     Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
     if (!game) return;
@@ -112,12 +116,13 @@ void Game::mouse_callback(GLFWwindow* window, double xposIn, double yposIn){
     game->settings.lastY = ypos;
     game->camera->ProcessMouseMovement(xoffset, yoffset);
 }
+// function that decides what happens with the scroll movements
 void Game::scroll_callback(GLFWwindow* window, double, double yoffset) {
     Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
     if (!game) return;
     game->camera->ProcessMouseScroll(static_cast<float>(yoffset));
 }
-
+// the main running loop : renders everything and captures input
 void Game::run(){
     // Enable alpha blending globally for the game loop
     glEnable(GL_BLEND);
@@ -132,8 +137,9 @@ void Game::run(){
         glfwPollEvents();
     }
 }
-
-void Game::draw() {
+// the actual drawing function called in the render loop : internally calls renderer to render component wise
+void Game::draw() const {
+    // draw bg color
     glClearColor(
         settings.bgcolor.r,
         settings.bgcolor.g,

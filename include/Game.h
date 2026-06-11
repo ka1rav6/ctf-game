@@ -33,12 +33,12 @@ public:
     ~Game();
     void run();
     void cleanup();
-    void draw();
+    void draw() const;
     bool isRunning() const {
         return !glfwWindowShouldClose(window);
     };
 private:
-    void processInput();
+    void processInput() const;
     static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
     static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
