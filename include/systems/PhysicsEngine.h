@@ -15,10 +15,11 @@ namespace reactphysics3d {
 
 class PhysicsEngine {
 public:
-    reactphysics3d::PhysicsCommon physicsCommon;
+    reactphysics3d::PhysicsCommon pCommon;
     reactphysics3d::PhysicsWorld* world;
 
     PhysicsEngine();
+    ~PhysicsEngine();
     void update(float dt);
 };
 

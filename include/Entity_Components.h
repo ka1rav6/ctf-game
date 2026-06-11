@@ -46,15 +46,17 @@ struct InfiniteGridComponent {
 };
 
 // Physics components
-struct RigidbodyComponent {
+struct RigidBodyComponent {
     reactphysics3d::RigidBody* body = nullptr;
+    reactphysics3d::Vector3 position{};
+    reactphysics3d::Quaternion orientation= reactphysics3d::Quaternion::identity();
+    reactphysics3d::Transform transform{};
 };
 struct BoxColliderComponent {
     glm::vec3 halfExtents;
 };
 
 struct Collider{};
-struct Physics{};
 struct Light{};
 struct Sprite{};
 struct Audio{};

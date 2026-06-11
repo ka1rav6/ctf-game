@@ -6,12 +6,14 @@
 #define MAIN_GAME_RENDERER_H
 #include "../include/common.h"
 #include "../include/Scene.h"
+#include "../include/systems/PhysicsEngine.h"
 
 class Camera;
+class PhysicsEngine;
 
 class Renderer {
 public:
-    void render(Scene& scene, Camera& camera, const glm::mat4& projection);
+    static void render(Scene& scene, Camera& camera, PhysicsEngine* world, const glm::mat4& projection);
 };
 
 #endif //MAIN_GAME_RENDERER_H

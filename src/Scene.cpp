@@ -62,7 +62,7 @@ Entity Scene::createGround() {
     Entity ground = createEntity();
     auto& transform = ground.addComponent<TransformComponent>();
     transform.position = {0.0f, -1.0f, 0.0f};
-    auto& rb = ground.addComponent<RigidbodyComponent>();
+    auto& rb = ground.addComponent<RigidBodyComponent>();
     using namespace reactphysics3d;
     Transform physicsTransform(
         Vector3(0, -1, 0),
@@ -70,7 +70,7 @@ Entity Scene::createGround() {
     );
     rb.body = physics.world->createRigidBody(physicsTransform);
     rb.body->setType(BodyType::STATIC);
-    BoxShape* shape = physics.physicsCommon.createBoxShape(Vector3(100.0f, 1.0f, 100.0f) );
+    BoxShape* shape = physics.pCommon.createBoxShape(Vector3(100.0f, 1.0f, 100.0f) );
     rb.body->addCollider( shape, Transform::identity());
     return ground;
 }
