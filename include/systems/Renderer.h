@@ -13,7 +13,7 @@ class PhysicsEngine;
 
 class Renderer {
 public:
-    static void render(Scene& scene, Camera& camera, PhysicsEngine* world, const glm::mat4& projection);
+    static void render(Scene& scene, Camera& camera, const glm::mat4& projection);
 };
 
 #endif //MAIN_GAME_RENDERER_H

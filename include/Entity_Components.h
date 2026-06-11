@@ -48,10 +48,10 @@ struct InfiniteGridComponent {
 // Physics components
 struct RigidBodyComponent {
     reactphysics3d::RigidBody* body = nullptr;
-    reactphysics3d::Vector3 position{};
-    reactphysics3d::Quaternion orientation= reactphysics3d::Quaternion::identity();
-    reactphysics3d::Transform transform{};
+    reactphysics3d::BodyType bodyType = reactphysics3d::BodyType::DYNAMIC;
+    float mass = 1.0f;
 };
+
 struct BoxColliderComponent {
     glm::vec3 halfExtents;
 };

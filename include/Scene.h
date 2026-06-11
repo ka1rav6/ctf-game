@@ -19,14 +19,15 @@ public:
     entt::registry& getReg() {
         return this->reg;
     };
+    PhysicsEngine engine;
 private:
     entt::registry reg;
     Entity createGround();
     Entity createTree();
+    Entity createTestCube();
     Entity createSun(unsigned int cubeVAO);
     Entity createGrid();
     friend class Entity;
-    PhysicsEngine physics;
 };
 
 #endif //MAIN_GAME_SCENE_H

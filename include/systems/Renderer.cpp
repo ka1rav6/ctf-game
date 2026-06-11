@@ -7,7 +7,7 @@
 #include "../src/components/Sun.h"
 #include "../src/components/InfiniteGrid.h"
 
-void Renderer::render(Scene& scene, Camera& camera, PhysicsEngine* e, const glm::mat4& projection) {
+void Renderer::render(Scene& scene, Camera& camera, const glm::mat4& projection) {
     auto& registry = scene.getReg();
 
     auto sunView = registry.view<SunComponent>();
@@ -67,5 +67,5 @@ void Renderer::render(Scene& scene, Camera& camera, PhysicsEngine* e, const glm:
         for (auto entity : physicsView) {
             auto& rigidBody = physicsView.get<RigidBodyComponent>(entity);
         }
-
+        scene.engine.syncToECS(scene);
 }
