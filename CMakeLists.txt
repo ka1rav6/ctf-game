@@ -12,6 +12,13 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(assimp REQUIRED)
+include(FetchContent)
+FetchContent_Declare(
+        reactphysics3d
+        GIT_REPOSITORY https://github.com/DanielChappuis/reactphysics3d.git
+        GIT_TAG master
+)
+FetchContent_MakeAvailable(reactphysics3d)
 
 # =========================
 # Abstractions (engine layer)
@@ -21,13 +28,18 @@ file(GLOB_RECURSE ABSTRACTION_SRCS CONFIGURE_DEPENDS
         abstractions/src/*.c
 )
 
-add_library(abstractions STATIC ${ABSTRACTION_SRCS}
+add_library(abstractions STATIC
+        ${ABSTRACTION_SRCS}
         include/systems/Renderer.cpp
-        include/systems/Renderer.h)
+        include/systems/Renderer.h
+        include/systems/PhysicsEngine.cpp
+        include/systems/PhysicsEngine.h
+)
 
 target_include_directories(abstractions
         PUBLIC
         ${CMAKE_SOURCE_DIR}/abstractions/include
+        ${CMAKE_SOURCE_DIR}/include
         ${CMAKE_SOURCE_DIR}/external
 )
 
@@ -36,6 +48,7 @@ target_link_libraries(abstractions
         OpenGL::GL
         glfw
         assimp
+        reactphysics3d
 )
 
 # =========================
