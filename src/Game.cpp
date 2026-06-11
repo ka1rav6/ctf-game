@@ -1,9 +1,28 @@
 //
 // Created by kairav on 6/7/26.
 //
+// ─── GAME IMPLEMENTATION ────────────────────────────────────────────────────────
+// The Game class is now a thin orchestrator.  Compare the old vs new flow:
+//
+// OLD (before ECS):
+//   Game::init()  → manually creates Sun*, InfiniteGrid*, Model*, Shader*
+//   Game::draw()  → manually calls each object's render method with GL state
+//   Game::~Game() → manually deletes each pointer
+//
+// NEW (with ECS):
+//   Game::init()  → creates Scene (which creates all entities with components)
+//                 → creates Renderer (stateless draw system)
+//   Game::draw()  → calls scene->update() then renderer->render()
+//                   Renderer queries the registry and draws automatically.
+//   Game::~Game() → deletes Scene (which cleans up all entity resources)
+//                 → deletes Renderer
+//
+// The Game still owns:  window, camera, timer, cube VAO/VBO (engine-level stuff)
+// The Scene now owns:   all game entities and their components
+// The Renderer does:    all OpenGL draw calls by querying the ECS registry
+// ─────────────────────────────────────────────────────────────────────────────────
 
 #include "../include/Game.h"
-
 
 
 Game::Game(bool mouseCaptured) {
@@ -17,17 +36,17 @@ Game::Game(bool mouseCaptured) {
     glfwSetCursorPosCallback(this->window, Game::mouse_callback);
     glfwSetScrollCallback(this->window, Game::scroll_callback);
     LOG_INFO("Set all different callbacks successfully!");
-
 }
+
 
 void Game::init() {
     this->window = Initializer::init(settings.SCR_WIDTH, settings.SCR_HEIGHT, settings.WINDOW_TITLE);
     glfwMakeContextCurrent(this->window);
     glfwSetWindowUserPointer(this->window, this);
     glEnable(GL_DEPTH_TEST);
+
     camera = new Camera(settings.camera_position);
     LOG_INFO("Created window and camera userpointer!");
-    // setting up vbos and vaos
     glGenVertexArrays(1, &cubeVAO);
     glGenBuffers(1, &VBO);
     glBindVertexArray(cubeVAO);
@@ -40,43 +59,30 @@ void Game::init() {
     // texture coord attribute
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    LOG_INFO("About to create Scene with all entities");
+    this->scene = new Scene(cubeVAO);
+    LOG_INFO("Scene created with all entities");
 
-
-    // INITIALIZING ALL MEMBER POINTERS
-    LOG_INFO("About to initialize Sun");
-    this->sun = new Sun(cubeVAO);
-    LOG_INFO("Created Sun");
-    this->grid = new InfiniteGrid();
-    LOG_INFO("Created Grid");
-    skyIsland = new Model("../external/models/sky_islands/scene.gltf");
-    modelShader = new Shader("../src/components/shaders/Model.vs","../src/components/shaders/Model.fs");
-    tree = new Model ("../external/models/maple_tree/scene.gltf");
-    treeShader = new Shader("../src/components/shaders/tree.vs","../src/components/shaders/tree.fs");
+    this->renderer = new Renderer();
+    LOG_INFO("Renderer system created");
 }
 
 Game::~Game() {
+    delete scene;
+    scene = nullptr; // again: removing dangling ptrs coz I have ocd
+    delete renderer;
+    renderer = nullptr;
     delete camera;
     camera = nullptr;
-    delete sun;
-    sun = nullptr;
-    delete grid;
-    grid = nullptr;
-    delete skyIsland;
-    skyIsland = nullptr;
-    delete tree;
-    tree = nullptr;
     LOG_WARN("All member pointers deleted and dangling pointers assigned nullptr");
-    // free all VBOs, VAOs, and EBOs
     glDeleteVertexArrays(1, &cubeVAO);
     glDeleteBuffers(1, &VBO);
     glfwTerminate();
-
 }
 
 void Game::processInput() {
     if (glfwGetKey(this->window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(this->window, true);
-
     if (glfwGetKey(this->window, GLFW_KEY_W) == GLFW_PRESS)
         camera->ProcessKeyboard(FORWARD, timer.deltaTime);
     if (glfwGetKey(this->window, GLFW_KEY_S) == GLFW_PRESS)
@@ -112,34 +118,16 @@ void Game::scroll_callback(GLFWwindow* window, double, double yoffset) {
     game->camera->ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
-
-
 void Game::run(){
+    // Enable alpha blending globally for the game loop
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glm::vec3 min(FLT_MAX);
-    glm::vec3 max(-FLT_MAX);
-
-    for (auto& mesh : tree->meshes)
-    {
-        for (auto& v : mesh.vertices)
-        {
-            min = glm::min(min, v.Position);
-            max = glm::max(max, v.Position);
-        }
-    }
-
-    std::cout << "Min: " << min.x << " " << min.y << " " << min.z << '\n';
-    std::cout << "Max: " << max.x << " " << max.y << " " << max.z << '\n';
     while(isRunning()){
         float currentFrame = static_cast<float>(glfwGetTime());
         timer.deltaTime = currentFrame - timer.lastFrame;
         timer.lastFrame = currentFrame;
-
         processInput();
         this->draw();
-
-
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -147,47 +135,13 @@ void Game::run(){
 
 void Game::draw() {
     glClearColor(
-    settings.bgcolor.r,
-    settings.bgcolor.g,
-    settings.bgcolor.b,
-    settings.bgcolor.a
-);
-    glClear(GL_COLOR_BUFFER_BIT |GL_DEPTH_BUFFER_BIT);
-    glm::mat4 projection =
-        glm::perspective(
-            glm::radians(camera->Zoom),
-            (float)settings.SCR_WIDTH /
-            (float)settings.SCR_HEIGHT,
-            0.1f,
-            1000.0f
-        );
-    sun->update(*camera);
-    sun->render(*camera, projection);
-    treeShader->use();
-
-    treeShader->setMat4("projection", projection);
-    treeShader->setMat4("view", camera->GetViewMatrix());
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::scale(model, glm::vec3(0.01f));
-    model = glm::rotate(model,glm::radians(-90.0f),glm::vec3(1.0f, 0.0f, 0.0f));
-
-    treeShader->setMat4("model", model);
-    glDisable(GL_BLEND);
-    glDisable(GL_CULL_FACE);
-
-    // optional but good for debugging
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    tree->Draw(*treeShader);
-
-    // restore state for rest of engine
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_CULL_FACE);
-    glDepthMask(GL_FALSE);
-    glDepthFunc(GL_LEQUAL);
-    grid->render(*camera, projection, 0.1f, 1000.0f);
-    glDepthMask(GL_TRUE);
-
-
+        settings.bgcolor.r,
+        settings.bgcolor.g,
+        settings.bgcolor.b,
+        settings.bgcolor.a
+    );
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glm::mat4 projection = glm::perspective( glm::radians(camera->Zoom), (float)settings.SCR_WIDTH / (float)settings.SCR_HEIGHT, 0.1f, 1000.0f );
+    scene->update(*camera);
+    renderer->render(*scene, *camera, projection);
 }

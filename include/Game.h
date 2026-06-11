@@ -6,13 +6,11 @@
 #define MAIN_GAME_GAME_H
 #include <string>
 #include "../include/common.h"
-#include "../src/components/InfiniteGrid.h"
-#include "../src/components/Sun.h"
+#include "../include/Scene.h"
+#include "../include/systems/Renderer.h"
 
-// storing all settings in a structure
 struct Settings {
     // basic screen settings
-
     const glm::vec4 bgcolor = glm::vec4(0.53f, 0.81f, 0.92f, 1.0f); // Sky blue;
     const char* WINDOW_TITLE = "CTF IIITD";
     const int SCR_WIDTH = 800;
@@ -35,7 +33,7 @@ public:
     ~Game();
     void run();
     void cleanup();
-    void draw(); // all rendering of all objects is here
+    void draw();
     bool isRunning() const {
         return !glfwWindowShouldClose(window);
     };
@@ -45,23 +43,13 @@ private:
     static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
     void init();
-    Model *skyIsland;
-    Model* tree;
-    Shader* treeShader;
-    Shader *modelShader;
     Settings settings;
     GLFWwindow *window;
     Camera *camera;
     Timer timer;
     bool firstMouse = true;
-
-
-    ///////// OBJECTS THAT WILL BE RENDERED
-    Sun *sun;
-    InfiniteGrid* grid;
-
-
-    ///////////// ALL VAOs, VBOs, EBOs
+    Scene *scene;
+    Renderer *renderer;
     unsigned int cubeVAO, VBO;
 };
 // cube vertices: (taken from learnopenGL directly for now)

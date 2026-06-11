@@ -21,6 +21,7 @@
 #include <assimp/material.h>
 #include <assimp/postprocess.h>
 #include "Logger.h"
+#include <reactphysics3d/reactphysics3d.h>
 
 #include <entt/entt.hpp>
 
