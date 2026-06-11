@@ -49,7 +49,6 @@ Entity Scene::createEntity(){
     return Entity(e, this);
 }
 void Scene::update(Camera& camera) {
-    // Update all Sun entities — each Sun tracks the camera position
     // so it always appears at a fixed offset in the sky.
     auto sunView = reg.view<SunComponent>();
     for (auto entity : sunView) {
@@ -83,7 +82,6 @@ Entity Scene::createTree() {
     transform.rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
     transform.scale    = glm::vec3(0.01f);
 
-    // Load the model and create its shader
     auto& meshRenderer = tree.addComponent<MeshRendererComponent>();
     meshRenderer.model  = new Model("../external/models/maple_tree/scene.gltf");
     meshRenderer.shader = new Shader("../src/components/shaders/tree.vs",

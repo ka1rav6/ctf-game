@@ -8,6 +8,7 @@
 
 class Scene;
 class Entity {
+    // a simple wrapper over entt : performs the exact same functions
 public:
     Entity() = default;
     Entity(entt::entity, Scene* scene);
