@@ -8,19 +8,25 @@
 #include "../external/entt/entt.hpp"
 #include "../include/Entity_Components.h"
 #include "../include/systems/PhysicsEngine.h"
+
 class Entity;
 class Scene {
 public:
-    Scene();
+    Scene(unsigned int cubeVAO);
     ~Scene();
     Entity createEntity();
-    entt::registry& getReg(){ return this->reg; };
+    void update(Camera& camera);
+    entt::registry& getReg() {
+        return this->reg;
+    };
 private:
     entt::registry reg;
     Entity createGround();
+    Entity createTree();
+    Entity createSun(unsigned int cubeVAO);
+    Entity createGrid();
     friend class Entity;
     PhysicsEngine physics;
 };
-
 
 #endif //MAIN_GAME_SCENE_H
