@@ -18,9 +18,9 @@ public:
     template<typename T>
     T& getComponent();
     template<typename T>
-    bool hasComponent();
+    bool hasComponent() const;
     template<typename T>
-    void removeComponent();
+    void removeComponent() const;
 
 private:
     entt::entity handle{entt::null};
@@ -39,11 +39,11 @@ T& Entity::getComponent(){
     return scene->reg.get<T>(handle);
 }
 template<typename T>
-bool Entity::hasComponent(){
+bool Entity::hasComponent() const {
     return scene->reg.all_of<T>(handle);
 }
 template<typename T>
-void Entity::removeComponent(){
+void Entity::removeComponent() const {
     scene->reg.remove<T>(handle);
 }
 
