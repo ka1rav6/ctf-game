@@ -7,7 +7,7 @@
 
 #include "../include/common.h"
 
-struct Transform{
+struct TransformComponent{
     glm::vec3 position{0.0f};
     glm::vec3 rotation{0.0f};
     glm::vec3 scale{1.0f};
@@ -20,15 +20,19 @@ struct TagComponent{
     std::string name;
 };
 
-struct MeshRenderer{
+struct MeshRendererComponent{
     std::string meshPath;
     Shader* shader;
     Model* model;
 };
 
-struct Rigidbody{
-    float mass = 1.0f;
+struct RigidbodyComponent {
+    reactphysics3d::RigidBody* body = nullptr;
 };
+struct BoxColliderComponent {
+    glm::vec3 halfExtents;
+};
+
 struct Collider{};
 struct Physics{};
 struct Light{};

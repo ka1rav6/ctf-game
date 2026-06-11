@@ -7,6 +7,7 @@
 #include "../include/common.h"
 #include "../external/entt/entt.hpp"
 #include "../include/Entity_Components.h"
+#include "../include/systems/PhysicsEngine.h"
 class Entity;
 class Scene {
 public:
@@ -16,7 +17,9 @@ public:
     entt::registry& getReg(){ return this->reg; };
 private:
     entt::registry reg;
+    Entity createGround();
     friend class Entity;
+    PhysicsEngine physics;
 };
 
 
