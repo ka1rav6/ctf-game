@@ -18,6 +18,7 @@ Scene::Scene(unsigned int cubeVAO) {
     createTree();
     createSun(cubeVAO);
     createGrid();
+    createTestCube();
     LOG_INFO("Scene: all entities created");
 }
 
@@ -57,6 +58,7 @@ void Scene::update(Camera& camera) {
             sc.sun->update(camera);
         }
     }
+    engine.update(*this); // every frame
 }
 Entity Scene::createGround() {
     Entity ground = createEntity();
@@ -68,10 +70,11 @@ Entity Scene::createGround() {
         Vector3(0, -1, 0),
         Quaternion::identity()
     );
-    rb.body = physics.world->createRigidBody(physicsTransform);
+    rb.body = engine.world->createRigidBody(physicsTransform);
     rb.body->setType(BodyType::STATIC);
-    BoxShape* shape = physics.pCommon.createBoxShape(Vector3(100.0f, 1.0f, 100.0f) );
-    rb.body->addCollider( shape, Transform::identity());
+
+    CollisionShape* shape = engine.pCommon.createBoxShape(Vector3(100.0f, 1.0f, 100.0f));
+    rb.body->addCollider(shape, Transform::identity());
     return ground;
 }
 Entity Scene::createTree() {
@@ -81,22 +84,23 @@ Entity Scene::createTree() {
     transform.position = glm::vec3(0.0f);
     transform.rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
     transform.scale    = glm::vec3(0.01f);
-
+    // RIGID BODY PHYSICS
+    auto& rb = tree.addComponent<RigidBodyComponent>();
+    using namespace reactphysics3d;
+    Transform physicsTransform(
+        Vector3(transform.position.x,
+                transform.position.y,
+                transform.position.z),
+        Quaternion::identity()
+    );
+    rb.body = engine.world->createRigidBody(physicsTransform);
+    rb.body->setType(BodyType::STATIC);
+    // approximate tree collider (simple for now)
+    CollisionShape* shape = engine.pCommon.createCapsuleShape(1.0f, 3.0f);
+    rb.body->addCollider(shape, Transform::identity());
     auto& meshRenderer = tree.addComponent<MeshRendererComponent>();
     meshRenderer.model  = new Model("../external/models/maple_tree/scene.gltf");
-    meshRenderer.shader = new Shader("../src/components/shaders/tree.vs",
-                                     "../src/components/shaders/tree.fs");
-    glm::vec3 min(FLT_MAX);
-    glm::vec3 max(-FLT_MAX);
-    for (auto& mesh : meshRenderer.model->meshes) {
-        for (auto& v : mesh.vertices) {
-            min = glm::min(min, v.Position);
-            max = glm::max(max, v.Position);
-        }
-    }
-    std::cout << "Min: " << min.x << " " << min.y << " " << min.z << '\n';
-    std::cout << "Max: " << max.x << " " << max.y << " " << max.z << '\n';
-    LOG_INFO("Scene: Tree entity created");
+    meshRenderer.shader = new Shader( "../src/components/shaders/tree.vs", "../src/components/shaders/tree.fs" );
     return tree;
 }
 Entity Scene::createSun(unsigned int cubeVAO) {
@@ -116,4 +120,31 @@ Entity Scene::createGrid() {
     gc.grid = new InfiniteGrid();
     LOG_INFO("Scene: Grid entity created");
     return gridEntity;
+}
+Entity Scene::createTestCube() {
+    Entity cube = createEntity();
+    LOG_WARN("TEST CUBE CREATED");
+    auto& transform = cube.addComponent<TransformComponent>();
+    transform.position = {0.0f, 15.0f, 0.0f};
+    transform.scale = glm::vec3(0.1f);
+    // transform.scale    = glm::vec3(0.f);
+    auto& meshRenderer = cube.addComponent<MeshRendererComponent>();
+    meshRenderer.model  = new Model("../external/models/cube/scene.gltf"); // or any simple cube
+    meshRenderer.shader = new Shader(
+        "../src/components/shaders/tree.vs",
+        "../src/components/shaders/tree.fs"
+    );
+
+    auto& rb = cube.addComponent<RigidBodyComponent>();
+    using namespace reactphysics3d;
+    Transform t(
+        Vector3(0, 15, 0),
+        Quaternion::identity()
+    );
+    rb.body = engine.world->createRigidBody(t);
+    rb.body->setType(BodyType::DYNAMIC);
+    CollisionShape* shape =
+        engine.pCommon.createBoxShape(Vector3(0.5f, 0.5f, 0.5f));
+    rb.body->addCollider(shape, Transform::identity());
+    return cube;
 }
