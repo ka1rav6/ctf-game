@@ -11,8 +11,7 @@ class Camera;
 
 class Renderer {
 public:
-    void render(Scene& scene, Camera& camera);
+    void render(Scene& scene, Camera& camera, const glm::mat4& projection);
 };
-
 
 #endif //MAIN_GAME_RENDERER_H
