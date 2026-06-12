@@ -18,11 +18,9 @@ void InfiniteGrid::render(Camera &camera, const glm::mat4 &projection,
                           float nearPlane, float farPlane) {
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glEnable(GL_CULL_FACE);
-  // glDepthMask(GL_FALSE);
   // LOG_INFO("Infinite Grid rendering now");
   shader->use();
-  shader->setVec3("cameraPos", camera.Position.x, camera.Position.y,
+  shader->setVec3("cameraLoc", camera.Position.x, camera.Position.y,
                   camera.Position.z);
   shader->setMat4("view", camera.GetViewMatrix());
   shader->setMat4("projection", projection);
@@ -32,7 +30,5 @@ void InfiniteGrid::render(Camera &camera, const glm::mat4 &projection,
   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
   glBindVertexArray(0);
 
-  // glDepthMask(GL_TRUE);
-  glDisable(GL_CULL_FACE);
   glDisable(GL_BLEND);
 }

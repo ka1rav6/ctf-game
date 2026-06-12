@@ -54,11 +54,6 @@ void Renderer::render(Scene &scene, Camera &camera,
     // Draw all the meshes in the model
     meshRenderer.model->Draw(*meshRenderer.shader);
   }
-  // glEnable(GL_BLEND);
-  // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  // glEnable(GL_CULL_FACE);
-  // glDepthMask(GL_FALSE);
-  // glDepthFunc(GL_LEQUAL);
 
   auto gridView = registry.view<InfiniteGridComponent>();
   for (auto entity : gridView) {
