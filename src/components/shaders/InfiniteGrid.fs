@@ -1,7 +1,8 @@
 #version 330 core
 
-in vec3 nearPoint;
-in vec3 farPoint;
+// in vec3 nearPoint;
+// in vec3 farPoint;
+in vec3 worldLoc;
 
 out vec4 fragColor;
 
@@ -13,30 +14,22 @@ float grid(vec2 coord)
 
 void main()
 {
-    float denom = (farPoint.y - nearPoint.y);
-    if (abs(denom) < 0.0001) discard;
-
-    float t = -nearPoint.y / denom;
-    if (t < 0.0) discard;
-
-    vec3 worldPos = nearPoint + t * (farPoint - nearPoint);
-
-    // 🌿 base grass color
     vec3 baseColor = vec3(0.10, 0.45, 0.15);
+    float g1 = grid(worldLoc.xz * 1.0);
+    float g2 = grid(worldLoc.xz * 0.25);
+    if (g2 > 0.6){
+			fragColor = vec4(vec3(0.2), 1.0);
+		}else if(g1 > 0.05){
+			fragColor = vec4(vec3(0.6), 1.0);
+		}else{
+			// set this to ground color agr isse hi ground bnana hai
+			fragColor = vec4(0.0);
+			return;
+		}
 
-    // grid
-    float g1 = grid(worldPos.xz * 1.0);
-    float g2 = grid(worldPos.xz * 0.1);
-
-    float g = max(g1, g2);
-
-    // soften grid into terrain variation
-    float mask = smoothstep(0.0, 1.0, g);
-
-    vec3 color = mix(baseColor, baseColor * 0.6, mask);
-
-    fragColor = vec4(color, 1.0);
 }
+
+
 /*
 
 /// IF SMOOTH FLOOR IS NEEDED INSTEAD (NOTE THE SHADOW IS NOT WORKING YET)
