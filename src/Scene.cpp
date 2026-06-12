@@ -11,6 +11,7 @@
 // We need the full definitions here because we construct them.
 #include "../src/components/InfiniteGrid.h"
 #include "../src/components/Sun.h"
+#include "glm/trigonometric.hpp"
 
 Scene::Scene(unsigned int cubeVAO) {
   // Creates each game entity with its components.
@@ -86,14 +87,15 @@ Entity Scene::createTree(glm::vec3 pos) {
   tree.addComponent<TagComponent>(TagComponent{"Tree"});
   auto &transform = tree.addComponent<TransformComponent>();
   transform.position = pos;
-  transform.rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
+  transform.rotation = glm::radians(glm::vec3(-90.0f, 00.0f, 00.0f));
   transform.scale = glm::vec3(0.01f);
   // RIGID BODY PHYSICS
   auto &rb = tree.addComponent<RigidBodyComponent>();
   using namespace reactphysics3d;
   Transform physicsTransform(
       Vector3(transform.position.x, transform.position.y, transform.position.z),
-      Quaternion::identity());
+      Quaternion::fromEulerAngles(transform.rotation.x, transform.rotation.y,
+                                  transform.rotation.z));
   rb.body = engine.world->createRigidBody(physicsTransform);
   rb.body->setType(BodyType::STATIC);
   // approximate tree collider (simple for now)
