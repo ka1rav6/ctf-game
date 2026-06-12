@@ -26,16 +26,27 @@ void main()
 
     // grid
     float g1 = grid(worldPos.xz * 1.0);
-    float g2 = grid(worldPos.xz * 0.1);
+		// ye wala is just repeating on the same grid as it is rn, isko baad me theek krenge
+    // float g2 = grid(worldPos.xz * 0.1);
+		float g2 = 0;
 
     float g = max(g1, g2);
 
     // soften grid into terrain variation
     float mask = smoothstep(0.0, 1.0, g);
 
-    vec3 color = mix(baseColor, baseColor * 0.6, mask);
+		if (mask > 0.1){
+			fragColor = vec4(vec3(0.0), 1.0);
+			return;
+		}else{
+			// set this to ground color agr isse hi ground bnana hai
+			fragColor = vec4(0.0);
+			return;
+		}
 
-    fragColor = vec4(color, 1.0);
+    // vec3 color = mix(baseColor, baseColor * 0.6, mask);
+
+    // fragColor = vec4(color, 1.0);
 }
 /*
 

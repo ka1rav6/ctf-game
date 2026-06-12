@@ -27,5 +27,6 @@ void main()
     nearPoint = unproject(vec3(p.x, p.y, -1.0));
     farPoint  = unproject(vec3(p.x, p.y,  1.0));
 
-    gl_Position = vec4(p, 1.0);
+    gl_Position = vec4(p.xy, 0.9999999, 1.0);
+    // gl_Position = vec4(p, 1.0);
 }
