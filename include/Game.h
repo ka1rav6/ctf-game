@@ -13,8 +13,8 @@ struct Settings {
     // basic screen settings
     const glm::vec4 bgcolor = glm::vec4(0.53f, 0.81f, 0.92f, 1.0f); // Sky blue;
     const char* WINDOW_TITLE = "CTF IIITD";
-    const int SCR_WIDTH = 800;
-    const int SCR_HEIGHT = 600;
+    const int SCR_WIDTH = 1600;
+    const int SCR_HEIGHT = 1200;
 
     // Camera settings:
     glm::vec3 camera_position = glm::vec3(0.0f, 1.0f, 4.0f);

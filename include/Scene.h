@@ -8,7 +8,8 @@
 #include "../external/entt/entt.hpp"
 #include "../include/Entity_Components.h"
 #include "../include/systems/PhysicsEngine.h"
-
+#include <unordered_map>
+#include <string>
 class Entity;
 class Scene {
 public:
@@ -26,7 +27,10 @@ private:
     Entity createTree(glm::vec3 pos);
     Entity createTestCube(glm::vec3 pos);
     Entity createSun(unsigned int cubeVAO);
+    Entity createGrass(glm::vec3);
     Entity createGrid();
+    std::unordered_map<std::string, Shader*> shaderCache;
+    Shader* getOrCreateShader(const std::string& vs, const std::string& fs);
     friend class Entity;
 };
 
