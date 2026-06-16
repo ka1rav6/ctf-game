@@ -61,6 +61,8 @@ file(GLOB_RECURSE GAME_SRCS CONFIGURE_DEPENDS
 add_executable(main_game
         main.cpp
         ${GAME_SRCS}
+        src/SceneSerializer.cpp
+        include/SceneSerializer.h
 )
 
 target_include_directories(main_game

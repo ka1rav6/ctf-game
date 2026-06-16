@@ -7,6 +7,14 @@
 
 
 class SceneSerializer {
+public:
+    SceneSerializer(Scene* scene);
+
+    void serialize(const std::string& path);
+    void deserialize(const std::string& path);
+
+private:
+    Scene* scene;
 };
 
 
