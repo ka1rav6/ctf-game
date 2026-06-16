@@ -50,7 +50,12 @@ target_link_libraries(abstractions
         assimp
         reactphysics3d
 )
+find_package(nlohmann_json REQUIRED)
 
+target_link_libraries(
+        main_game
+        PRIVATE nlohmann_json::nlohmann_json
+)
 # =========================
 # Game executable
 # =========================
