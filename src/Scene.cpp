@@ -5,7 +5,6 @@
 #include "../src/components/InfiniteGrid.h"
 #include "../src/components/Sun.h"
 #include "glm/trigonometric.hpp"
-
 Scene::Scene(unsigned int cubeVAO) {
   createGround();
   createTree(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -62,7 +61,9 @@ Shader* Scene::getOrCreateShader(const std::string& vs, const std::string& fs) {
 
 Entity Scene::createEntity() {
   auto e = reg.create();
-  return Entity(e, this);
+  auto entity = Entity(e, this);
+  entity.addComponent<IDComponent>(generateUUID());
+  return entity;
 }
 
 void Scene::update(Camera &camera) {
@@ -78,6 +79,7 @@ void Scene::update(Camera &camera) {
 
 Entity Scene::createGround() {
   Entity ground = createEntity();
+  // ground.addComponent<IDComponent>(generateUUID());
   auto &transform = ground.addComponent<TransformComponent>();
   transform.position = {0.0f, 0.0f, 0.0f};
   auto &rb = ground.addComponent<RigidBodyComponent>();
@@ -92,6 +94,8 @@ Entity Scene::createGround() {
 
 Entity Scene::createTree(glm::vec3 pos) {
   Entity tree = createEntity();
+  //tree.addComponent<IDComponent>(generateUUID());
+
   tree.addComponent<TagComponent>(TagComponent{"Tree"});
   auto &transform = tree.addComponent<TransformComponent>();
   transform.position = pos;
@@ -114,6 +118,7 @@ Entity Scene::createTree(glm::vec3 pos) {
 }
 Entity Scene::createSun(unsigned int cubeVAO) {
   Entity sunEntity = createEntity();
+  //sunEntity.addComponent<IDComponent>(generateUUID());
   sunEntity.addComponent<TagComponent>(TagComponent{"Sun"});
   auto &sc = sunEntity.addComponent<SunComponent>();
   sc.sun = new Sun(cubeVAO);
@@ -123,6 +128,7 @@ Entity Scene::createSun(unsigned int cubeVAO) {
 
 Entity Scene::createGrid() {
   Entity gridEntity = createEntity();
+  //gridEntity.addComponent<IDComponent>(generateUUID());
   gridEntity.addComponent<TagComponent>(TagComponent{"Grid"});
   auto &gc = gridEntity.addComponent<InfiniteGridComponent>();
   gc.grid = new InfiniteGrid();

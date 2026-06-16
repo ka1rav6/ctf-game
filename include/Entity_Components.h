@@ -9,14 +9,18 @@
 // own a particular combination of components and act on them.
 // ─────────────────────────────────────────────────────────────────────────────────
 
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid.hpp>
+
 #ifndef MAIN_GAME_ENTITY_COMPONENTS_H
 #define MAIN_GAME_ENTITY_COMPONENTS_H
 
 #include "../include/common.h"
-
 // Forward declarations
 class Sun;
 class InfiniteGrid;
+
+typedef uint64_t u64;
 
 struct TransformComponent{
     glm::vec3 position{0.0f};
@@ -25,7 +29,7 @@ struct TransformComponent{
     Shader* shader;
 };
 struct IDComponent{
-    uint64_t id;
+    u64 id;
 };
 struct TagComponent{
     std::string name;
@@ -60,5 +64,14 @@ struct Collider{};
 struct Light{};
 struct Sprite{};
 struct Audio{};
+
+u64 generateUUID() {
+    boost::uuids::uuid u = boost::uuids::random_generator()();
+    u64 value = 0;
+    for (int i = 0; i < 8; ++i) {
+        value = (value << 8) | u.data[i];
+    }
+    return value;
+}
 
 #endif //MAIN_GAME_ENTITY_COMPONENTS_H
