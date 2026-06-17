@@ -13,11 +13,13 @@ ImGuiIO& MyImgui::init(GLFWwindow* window) {
     ImGui_ImplOpenGL3_Init("#version 330");
     return io;
 }
-void MyImgui::update() {
+void MyImgui::beginFrame() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-    drawGUI(); // to resolve
+}
+ // call the renderer between these two functions in the game loop
+void MyImgui::endFrame() {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(
         ImGui::GetDrawData()

@@ -10,7 +10,8 @@
 class MyImgui {
 public:
     static ImGuiIO& init(GLFWwindow*);
-    static void update();
+    static void beginFrame();
+    static void endFrame();
     static void cleanup();
 };
 
