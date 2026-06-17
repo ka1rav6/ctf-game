@@ -1,27 +1,6 @@
 //
 // Created by kairav on 6/7/26.
 //
-// ─── GAME IMPLEMENTATION ────────────────────────────────────────────────────────
-// The Game class is now a thin orchestrator.  Compare the old vs new flow:
-//
-// OLD (before ECS):
-//   Game::init()  → manually creates Sun*, InfiniteGrid*, Model*, Shader*
-//   Game::draw()  → manually calls each object's render method with GL state
-//   Game::~Game() → manually deletes each pointer
-//
-// NEW (with ECS):
-//   Game::init()  → creates Scene (which creates all entities with components)
-//                 → creates Renderer (stateless draw system)
-//   Game::draw()  → calls scene->update() then renderer->render()
-//                   Renderer queries the registry and draws automatically.
-//   Game::~Game() → deletes Scene (which cleans up all entity resources)
-//                 → deletes Renderer
-//
-// The Game still owns:  window, camera, timer, cube VAO/VBO (engine-level stuff)
-// The Scene now owns:   all game entities and their components
-// The Renderer does:    all OpenGL draw calls by querying the ECS registry
-// ─────────────────────────────────────────────────────────────────────────────────
-
 #include "../include/Game.h"
 
 // game constructor : calls priate init() function
@@ -36,6 +15,9 @@ Game::Game(bool mouseCaptured) {
     glfwSetCursorPosCallback(this->window, Game::mouse_callback);
     glfwSetScrollCallback(this->window, Game::scroll_callback);
     LOG_INFO("Set all different callbacks successfully!");
+    // IMGUI initialization
+    this->io = &MyImgui::init(this->window);
+    this->editor = new Editor();
 }
 
 // initializes the window and all other member ptrs
@@ -69,8 +51,7 @@ void Game::init() {
     this->renderer = new Renderer();
     LOG_INFO("Renderer system created");
 
-    // IMGUI initialization
-    this->io = MyImgui::init(window);
+
 }
 // destructor to avoid memory leaks
 Game::~Game() {
@@ -78,6 +59,9 @@ Game::~Game() {
     scene = nullptr; // again: removing dangling ptrs coz I have ocd
     delete renderer;
     renderer = nullptr;
+    delete editor;
+    editor = nullptr;
+    MyImgui::cleanup();
     delete camera;
     camera = nullptr;
     LOG_WARN("All member pointers deleted and dangling pointers assigned nullptr");
@@ -153,4 +137,8 @@ void Game::draw() const {
     glm::mat4 projection = glm::perspective( glm::radians(camera->Zoom), (float)settings.SCR_WIDTH / (float)settings.SCR_HEIGHT, 0.1f, 1000.0f );
     scene->update(*camera);
     renderer->render(*scene, *camera, projection);
+    MyImgui::beginFrame();
+    editor->render(*scene);
+    MyImgui::endFrame();
+
 }

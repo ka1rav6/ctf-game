@@ -4,6 +4,7 @@
 
 #include "PhysicsEngine.h"
 #include "../include/Scene.h"
+#include "../include/Entity_Components.h"
 // PhysicsSystem.cpp
 
 PhysicsEngine::PhysicsEngine() {
@@ -21,11 +22,6 @@ void PhysicsEngine::update(Scene& scene) {
 PhysicsEngine::~PhysicsEngine() {
     pCommon.destroyPhysicsWorld(world);
 }
-
-
-#include "PhysicsEngine.h"
-#include "../include/Scene.h"
-#include "../include/Entity_Components.h"
 
 void PhysicsEngine::syncToECS(Scene& scene) {
     auto& registry = scene.getReg();

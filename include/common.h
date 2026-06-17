@@ -10,12 +10,12 @@
 
 #include <iostream>
 #include <vector>
-#include <glad/glad.h>
+#include "../external/glad/glad.h"
 #include <GLFW/glfw3.h>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "../external/glm/glm.hpp"
+#include "../external/glm/gtc/matrix_transform.hpp"
+#include "../external/glm/gtc/type_ptr.hpp"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/material.h>
@@ -23,10 +23,10 @@
 #include "Logger.h"
 #include <reactphysics3d/reactphysics3d.h>
 
-#include <entt/entt.hpp>
-#include <imgui/imgui.h>
+#include "../external/entt/entt.hpp"
+#include "../external/imgui/imgui.h"
 
-#include <imgui/backends/imgui_impl_glfw.h>
-#include <imgui/backends/imgui_impl_opengl3.h>
+#include "../external/imgui/backends/imgui_impl_glfw.h"
+#include "../external/imgui/backends/imgui_impl_opengl3.h"
 
 #endif //MAIN_GAME_SRC_COMMON_H

@@ -9,6 +9,8 @@
 #include "../include/Scene.h"
 #include "../include/systems/Renderer.h"
 #include "../include/systems/MyImgui.h"
+#include "../include/systems/Editor.h"
+
 
 struct Settings {
     // basic screen settings
@@ -52,7 +54,8 @@ private:
     Scene *scene;
     Renderer *renderer;
     unsigned int cubeVAO, VBO;
-    ImGuiIO& io;
+    ImGuiIO* io = nullptr;
+    Editor *editor;
 };
 // cube vertices: (taken from learnopenGL directly for now)
 constexpr float vertices[] = {

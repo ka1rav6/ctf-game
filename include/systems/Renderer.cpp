@@ -62,10 +62,4 @@ void Renderer::render(Scene &scene, Camera &camera,
       gc.grid->render(camera, projection, 0.1f, 1000.0f);
     }
   }
-
-  auto physicsView = registry.view<RigidBodyComponent>();
-  for (auto entity : physicsView) {
-    auto &rigidBody = physicsView.get<RigidBodyComponent>(entity);
-  }
-  scene.engine.syncToECS(scene);
 }
