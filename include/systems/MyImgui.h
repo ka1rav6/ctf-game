@@ -5,12 +5,13 @@
 #ifndef MAIN_GAME_MYIMGUI_H
 #define MAIN_GAME_MYIMGUI_H
 
+#include "../include/common.h"
 
 class MyImgui {
 public:
-    static void init() {
-
-    }
+    static ImGuiIO& init(GLFWwindow*);
+    static void update();
+    static void cleanup();
 };
 
 

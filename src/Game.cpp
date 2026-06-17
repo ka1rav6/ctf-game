@@ -70,13 +70,7 @@ void Game::init() {
     LOG_INFO("Renderer system created");
 
     // IMGUI initialization
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 330");
-    LOG_INFO("IMGUI HAS BEEN INITIALIZED");
+    this->io = MyImgui::init(window);
 }
 // destructor to avoid memory leaks
 Game::~Game() {
