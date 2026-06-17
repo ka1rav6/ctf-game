@@ -65,7 +65,7 @@ struct Light{};
 struct Sprite{};
 struct Audio{};
 
-u64 generateUUID() {
+static inline u64 generateUUID() {
     boost::uuids::uuid u = boost::uuids::random_generator()();
     u64 value = 0;
     for (int i = 0; i < 8; ++i) {

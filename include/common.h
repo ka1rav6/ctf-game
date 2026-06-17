@@ -24,5 +24,9 @@
 #include <reactphysics3d/reactphysics3d.h>
 
 #include <entt/entt.hpp>
+#include <imgui/imgui.h>
+
+#include <imgui/backends/imgui_impl_glfw.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
 
 #endif //MAIN_GAME_SRC_COMMON_H

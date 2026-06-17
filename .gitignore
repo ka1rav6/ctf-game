@@ -83,4 +83,4 @@ qrc_*.cpp
 Thumbs.db
 
 build/
-
+external/imgui
