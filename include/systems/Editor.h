@@ -10,7 +10,7 @@
 class Editor {
 public:
     Editor() = default;
-    void render(Scene& scene);
+    void render(Scene& scene, bool editorMode);
 };
 
 #endif //MAIN_GAME_EDITOR_H

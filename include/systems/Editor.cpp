@@ -5,10 +5,24 @@
 #include "Editor.h"
 #include "../include/Entity_Components.h"
 
-void Editor::render(Scene& scene) {
+void Editor::render(Scene& scene, bool editorMode) {
     ImGui::Begin("Statistics");
     ImGui::Text("FPS: %.2f", ImGui::GetIO().Framerate);
+    ImGui::Text("Press F1 to toggle Editor Mode");
     ImGui::End();
+
+    if (editorMode) {
+        ImGuiViewport* viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(ImVec2(viewport->WorkPos.x + viewport->WorkSize.x * 0.5f, viewport->WorkPos.y + 10), ImGuiCond_Always, ImVec2(0.5f, 0.0f));
+        ImGui::SetNextWindowBgAlpha(0.65f);
+        ImGui::Begin("##EditorModeBanner", nullptr,
+            ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
+            ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav);
+        ImGui::TextColored(ImVec4(1.0f, 0.85f, 0.2f, 1.0f), "EDITOR MODE  (F1 to exit)");
+        ImGui::End();
+    }
+
+    if (!editorMode) return;
 
     ImGui::Begin("Scene Hierarchy");
     auto& reg = scene.getReg();
