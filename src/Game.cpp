@@ -14,6 +14,7 @@ Game::Game(bool mouseCaptured) {
     }
     glfwSetCursorPosCallback(this->window, Game::mouse_callback);
     glfwSetScrollCallback(this->window, Game::scroll_callback);
+    glfwSetKeyCallback(this->window, Game::key_callback);
     LOG_INFO("Set all different callbacks successfully!");
     // IMGUI initialization
     this->io = &MyImgui::init(this->window);
@@ -74,6 +75,7 @@ Game::~Game() {
 void Game::processInput() const {
     if (glfwGetKey(this->window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(this->window, true);
+    if (editorMode) return;
     if (glfwGetKey(this->window, GLFW_KEY_W) == GLFW_PRESS)
         camera->ProcessKeyboard(FORWARD, timer.deltaTime);
     if (glfwGetKey(this->window, GLFW_KEY_S) == GLFW_PRESS)
@@ -86,7 +88,7 @@ void Game::processInput() const {
 // function for deciding what happens with the mouse movements
 void Game::mouse_callback(GLFWwindow* window, double xposIn, double yposIn){
     Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
-    if (!game) return;
+    if (!game || game->editorMode) return;
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
     if (game->firstMouse)
@@ -108,6 +110,24 @@ void Game::scroll_callback(GLFWwindow* window, double, double yoffset) {
     Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
     if (!game) return;
     game->camera->ProcessMouseScroll(static_cast<float>(yoffset));
+}
+// flips between gameplay (cursor locked) and editor (cursor free, ImGui usable) mode
+void Game::setEditorMode(bool enabled) {
+    editorMode = enabled;
+    if (editorMode) {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    } else {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        firstMouse = true; // prevents a camera snap from stale cursor deltas
+    }
+}
+// F1 toggles editor mode on/off
+void Game::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
+    if (!game) return;
+    if (key == GLFW_KEY_F1 && action == GLFW_PRESS) {
+        game->setEditorMode(!game->editorMode);
+    }
 }
 // the main running loop : renders everything and captures input
 void Game::run(){
@@ -138,7 +158,7 @@ void Game::draw() const {
     scene->update(*camera);
     renderer->render(*scene, *camera, projection);
     MyImgui::beginFrame();
-    editor->render(*scene);
+    editor->render(*scene, editorMode);
     MyImgui::endFrame();
 
 }

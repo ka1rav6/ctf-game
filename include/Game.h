@@ -44,6 +44,8 @@ private:
     void processInput() const;
     static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
     static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+    static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    void setEditorMode(bool enabled);
 
     void init();
     Settings settings;
@@ -51,6 +53,7 @@ private:
     Camera *camera;
     Timer timer;
     bool firstMouse = true;
+    bool editorMode = false;
     Scene *scene;
     Renderer *renderer;
     unsigned int cubeVAO, VBO;
