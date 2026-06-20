@@ -15,11 +15,14 @@ void Editor::render(Scene& scene, bool editorMode) {
         ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(ImVec2(viewport->WorkPos.x + viewport->WorkSize.x * 0.5f, viewport->WorkPos.y + 10), ImGuiCond_Always, ImVec2(0.5f, 0.0f));
         ImGui::SetNextWindowBgAlpha(0.65f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(24.0f, 14.0f));
         ImGui::Begin("##EditorModeBanner", nullptr,
             ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
             ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav);
+        ImGui::SetWindowFontScale(2.0f);
         ImGui::TextColored(ImVec4(1.0f, 0.85f, 0.2f, 1.0f), "EDITOR MODE  (F1 to exit)");
         ImGui::End();
+        ImGui::PopStyleVar();
     }
 
     if (!editorMode) return;
