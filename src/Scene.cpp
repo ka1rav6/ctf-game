@@ -10,8 +10,9 @@ Scene::Scene(unsigned int cubeVAO) {
   createTree(glm::vec3(0.0f, 0.0f, 0.0f));
   createSun(cubeVAO);
   createGrid();
-  // for (int i = 0; i < 5; i++) {
-  //   createGrass(glm::vec3(5.0, 0.0f, (5.0f + 0.25 * i)));
+  for (int i = 0; i < 5; i++) {
+    createTestCube(glm::vec3(5.0, 0.0f, (5.0f + 0.25 * i)));
+  }
   //   // createGrass(glm::vec3((5.0f + 0.25 * i), 0.0f, (5.0f + 0.25 * i)));
   //   // createGrass(glm::vec3((5.0f + 0.25 * i), 0.0f, (5.0f + 0.25 * i)));
   //   // createGrass(glm::vec3((5.0f - 0.25 * i), 0.0f, (5.0f - 0.25 * i)));
