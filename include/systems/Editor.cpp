@@ -38,9 +38,32 @@ void Editor::render(Scene& scene, bool editorMode) {
         if (ImGui::TreeNode((void*)(intptr_t)entity, "%s", label.c_str())) {
             if (reg.all_of<TransformComponent>(entity)) {
                 auto& t = reg.get<TransformComponent>(entity);
-                ImGui::DragFloat3("Position", &t.position.x, 0.1f);
-                ImGui::DragFloat3("Rotation", &t.rotation.x, 0.1f);
-                ImGui::DragFloat3("Scale", &t.scale.x, 0.1f);
+                bool changed = false;
+                changed |= ImGui::DragFloat3("Position", &t.position.x, 0.1f);
+                changed |= ImGui::DragFloat3("Rotation", &t.rotation.x, 0.1f);
+                changed |= ImGui::DragFloat3("Scale", &t.scale.x, 0.1f);
+
+                // If this entity also has a physics body, the physics engine
+                // overwrites TransformComponent every frame from the body's
+                // actual transform (see PhysicsEngine::syncToECS). Without
+                // pushing our edit back into the body, any drag here gets
+                // silently reverted on the very next frame.
+                if (changed && reg.all_of<RigidBodyComponent>(entity)) {
+                    auto& rb = reg.get<RigidBodyComponent>(entity);
+                    if (rb.body) {
+                        using namespace reactphysics3d;
+                        Quaternion q = Quaternion::fromEulerAngles(
+                            glm::radians(t.rotation.x),
+                            glm::radians(t.rotation.y),
+                            glm::radians(t.rotation.z));
+                        Transform newTransform(
+                            Vector3(t.position.x, t.position.y, t.position.z), q);
+                        rb.body->setTransform(newTransform);
+                        // Static bodies don't get re-integrated by the solver,
+                        // but setTransform still moves them immediately.
+                        // Dynamic/kinematic bodies also wake up correctly here.
+                    }
+                }
             }
             ImGui::TreePop();
         }
