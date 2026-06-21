@@ -9,15 +9,18 @@ Game::Game(bool mouseCaptured) {
     LOG_INFO("init function completely executed");
     if (!this->window)
         LOG_FATAL("Failed to execute Game::init() function. Window not created!");
+    // IMGUI initialization must happen BEFORE our own callbacks are installed,
+    // since GLFW only allows one callback per event type and we chain into
+    // ImGui's handlers manually inside our own callbacks below.
+    this->io = &MyImgui::init(this->window);
     if (mouseCaptured) {
         glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
     glfwSetCursorPosCallback(this->window, Game::mouse_callback);
     glfwSetScrollCallback(this->window, Game::scroll_callback);
     glfwSetKeyCallback(this->window, Game::key_callback);
+    glfwSetMouseButtonCallback(this->window, Game::mouse_button_callback);
     LOG_INFO("Set all different callbacks successfully!");
-    // IMGUI initialization
-    this->io = &MyImgui::init(this->window);
     this->editor = new Editor();
 }
 
@@ -85,8 +88,13 @@ void Game::processInput() const {
     if (glfwGetKey(this->window, GLFW_KEY_D) == GLFW_PRESS)
         camera->ProcessKeyboard(RIGHT, timer.deltaTime);
 }
+// forwards mouse button clicks to ImGui (required for any widget interaction)
+void Game::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+}
 // function for deciding what happens with the mouse movements
 void Game::mouse_callback(GLFWwindow* window, double xposIn, double yposIn){
+    ImGui_ImplGlfw_CursorPosCallback(window, xposIn, yposIn);
     Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
     if (!game || game->editorMode) return;
     float xpos = static_cast<float>(xposIn);
@@ -106,9 +114,10 @@ void Game::mouse_callback(GLFWwindow* window, double xposIn, double yposIn){
     game->camera->ProcessMouseMovement(xoffset, yoffset);
 }
 // function that decides what happens with the scroll movements
-void Game::scroll_callback(GLFWwindow* window, double, double yoffset) {
+void Game::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
     Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
-    if (!game) return;
+    if (!game || game->editorMode) return;
     game->camera->ProcessMouseScroll(static_cast<float>(yoffset));
 }
 // flips between gameplay (cursor locked) and editor (cursor free, ImGui usable) mode
@@ -123,6 +132,7 @@ void Game::setEditorMode(bool enabled) {
 }
 // F1 toggles editor mode on/off
 void Game::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
     Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
     if (!game) return;
     if (key == GLFW_KEY_F1 && action == GLFW_PRESS) {
