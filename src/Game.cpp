@@ -144,6 +144,19 @@ void Game::run(){
     // Enable alpha blending globally for the game loop
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // Assimp::Importer importer;
+    // const aiScene* scene = importer.ReadFile("../external/models/dibbba.glb", 0);
+    // aiVector3D min(1e10f), max(-1e10f);
+    // for (unsigned m = 0; m < scene->mNumMeshes; m++) {
+    //     auto* mesh = scene->mMeshes[m];
+    //     for (unsigned v = 0; v < mesh->mNumVertices; v++) {
+    //         auto& p = mesh->mVertices[v];
+    //         min.x = std::min(min.x, p.x); max.x = std::max(max.x, p.x);
+    //         min.y = std::min(min.y, p.y); max.y = std::max(max.y, p.y);
+    //         min.z = std::min(min.z, p.z); max.z = std::max(max.z, p.z);
+    //     }
+    // }
+    // std::cout << "size: " << (max.x-min.x) << " " << (max.y-min.y) << " " << (max.z-min.z) << "\n";
     while(isRunning()){
         float currentFrame = static_cast<float>(glfwGetTime());
         timer.deltaTime = currentFrame - timer.lastFrame;

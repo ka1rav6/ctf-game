@@ -5,20 +5,15 @@
 #include "../src/components/InfiniteGrid.h"
 #include "../src/components/Sun.h"
 #include "glm/trigonometric.hpp"
+
 Scene::Scene(unsigned int cubeVAO) {
   createGround();
   createTree(glm::vec3(0.0f, 0.0f, 0.0f));
   createSun(cubeVAO);
   createGrid();
   for (int i = 0; i < 5; i++) {
-    createTestCube(glm::vec3(5.0, 0.0f, (5.0f + 0.25 * i)));
+    createTestCube(glm::vec3(1.0, 30.0f, (1.0f + 0.25 * i)));
   }
-  //   // createGrass(glm::vec3((5.0f + 0.25 * i), 0.0f, (5.0f + 0.25 * i)));
-  //   // createGrass(glm::vec3((5.0f + 0.25 * i), 0.0f, (5.0f + 0.25 * i)));
-  //   // createGrass(glm::vec3((5.0f - 0.25 * i), 0.0f, (5.0f - 0.25 * i)));
-  //   // createGrass(glm::vec3((5.0f - 0.25 * i), 0.0f, (5.0f + 0.25 * i)));
-  //   // createGrass(glm::vec3((5.0f + 0.25 * i), 0.0f, (5.0f - 0.25 * i)));
-  // }
   LOG_INFO("Scene: all entities created");
 }
 
@@ -75,51 +70,72 @@ void Scene::update(Camera &camera) {
       sc.sun->update(camera);
     }
   }
+  // engine.update() steps the physics world AND calls syncToECS()
+  // internally (see PhysicsEngine.cpp), which copies every RigidBody's
+  // transform back into its TransformComponent (position + Euler degrees).
+  // That's the single source of truth for "mesh follows physics" - nothing
+  // else in this file needs to duplicate that work.
   engine.update(*this);
 }
 
 Entity Scene::createGround() {
   Entity ground = createEntity();
-  // ground.addComponent<IDComponent>(generateUUID());
   auto &transform = ground.addComponent<TransformComponent>();
   transform.position = {0.0f, 0.0f, 0.0f};
   auto &rb = ground.addComponent<RigidBodyComponent>();
-  using namespace reactphysics3d;
-  Transform physicsTransform(Vector3(0, -1, 0), Quaternion::identity());
-  rb.body = engine.world->createRigidBody(physicsTransform);
-  rb.body->setType(BodyType::STATIC);
-  CollisionShape *shape = engine.pCommon.createBoxShape(Vector3(100.0f, 1.0f, 100.0f));
-  rb.body->addCollider(shape, Transform::identity());
+  auto &meshRenderer = ground.addComponent<MeshRendererComponent>();
+  meshRenderer.model = new Model("../external/models/cube/scene.gltf");
+  meshRenderer.shader = getOrCreateShader("../src/components/shaders/tree.vs",
+                                          "../src/components/shaders/tree.fs");
+  {
+    using namespace reactphysics3d;
+    // Ground mesh renders at transform.position.y == 0.0, so the collider's
+    // top face needs to land exactly at y=0 too, or resting objects will
+    // settle at the wrong height relative to what's drawn (this was off by
+    // 0.25 units before: center at -9.55 + half-height 9.8 = top at 0.25,
+    // not 0). Half-height stays 9.8; only the center's y changes.
+    float halfHeight = 9.8f;
+    Transform physicsTransform(Vector3(0, -halfHeight, 0), Quaternion::identity());
+    rb.body = engine.world->createRigidBody(physicsTransform);
+    rb.body->setType(BodyType::STATIC);
+    CollisionShape *shape = engine.pCommon.createBoxShape(Vector3(1000000.0f, halfHeight, 1000000.0f));
+    rb.body->addCollider(shape, Transform::identity());
+  }
+  // Ground is static and rb.body's spawn transform matches transform.position
+  // above (both (0, -9.55, 0)) - syncToECS() will keep it pinned there even
+  // though it never actually moves.
   return ground;
 }
 
 Entity Scene::createTree(glm::vec3 pos) {
   Entity tree = createEntity();
-  //tree.addComponent<IDComponent>(generateUUID());
-
   tree.addComponent<TagComponent>(TagComponent{"Tree"});
   auto &transform = tree.addComponent<TransformComponent>();
   transform.position = pos;
-  transform.rotation = glm::radians(glm::vec3(-90.0f, 0.0f, 0.0f));
+  transform.rotation = glm::vec3(-90.0f, 0.0f, 0.0f); // degrees, matches syncToECS's convention
   transform.scale = glm::vec3(0.01f);
   auto &rb = tree.addComponent<RigidBodyComponent>();
-  using namespace reactphysics3d;
-  Transform physicsTransform(
-      Vector3(transform.position.x, transform.position.y, transform.position.z),
-      Quaternion::fromEulerAngles(transform.rotation.x, transform.rotation.y, transform.rotation.z));
-  rb.body = engine.world->createRigidBody(physicsTransform);
-  rb.body->setType(BodyType::STATIC);
-  CollisionShape *shape = engine.pCommon.createCapsuleShape(1.0f, 3.0f);
-  rb.body->addCollider(shape, Transform::identity());
+  {
+    using namespace reactphysics3d;
+    Transform physicsTransform(
+        Vector3(transform.position.x, transform.position.y, transform.position.z),
+        Quaternion::fromEulerAngles(glm::radians(transform.rotation.x),
+                                    glm::radians(transform.rotation.y),
+                                    glm::radians(transform.rotation.z)));
+    rb.body = engine.world->createRigidBody(physicsTransform);
+    rb.body->setType(BodyType::STATIC);
+    CollisionShape *shape = engine.pCommon.createCapsuleShape(1.0f, 3.0f);
+    rb.body->addCollider(shape, Transform::identity());
+  }
   auto &meshRenderer = tree.addComponent<MeshRendererComponent>();
   meshRenderer.model = new Model("../external/models/maple_tree/scene.gltf");
   meshRenderer.shader = getOrCreateShader("../src/components/shaders/tree.vs",
                                           "../src/components/shaders/tree.fs");
   return tree;
 }
+
 Entity Scene::createSun(unsigned int cubeVAO) {
   Entity sunEntity = createEntity();
-  //sunEntity.addComponent<IDComponent>(generateUUID());
   sunEntity.addComponent<TagComponent>(TagComponent{"Sun"});
   auto &sc = sunEntity.addComponent<SunComponent>();
   sc.sun = new Sun(cubeVAO);
@@ -129,7 +145,6 @@ Entity Scene::createSun(unsigned int cubeVAO) {
 
 Entity Scene::createGrid() {
   Entity gridEntity = createEntity();
-  //gridEntity.addComponent<IDComponent>(generateUUID());
   gridEntity.addComponent<TagComponent>(TagComponent{"Grid"});
   auto &gc = gridEntity.addComponent<InfiniteGridComponent>();
   gc.grid = new InfiniteGrid();
@@ -137,47 +152,37 @@ Entity Scene::createGrid() {
   return gridEntity;
 }
 
-// Entity Scene::createGrass(glm::vec3 pos) {
-//   Entity grass = createEntity();
-//   grass.addComponent<TagComponent>(TagComponent{"Grass"});
-//   auto &transform = grass.addComponent<TransformComponent>();
-//   transform.position = pos;
-//   transform.rotation = glm::radians(glm::vec3(-90.0f, 0.0f, 0.0f));
-//   transform.scale = glm::vec3(0.0001f);
-//
-//   auto &rb = grass.addComponent<RigidBodyComponent>();
-//   using namespace reactphysics3d;
-//   Transform physicsTransform(
-//       Vector3(transform.position.x, transform.position.y, transform.position.z),
-//       Quaternion::fromEulerAngles(transform.rotation.x, transform.rotation.y, transform.rotation.z));
-//   rb.body = engine.world->createRigidBody(physicsTransform);
-//   rb.body->setType(BodyType::STATIC);
-//
-//   auto &meshRenderer = grass.addComponent<MeshRendererComponent>();
-//   meshRenderer.model = new Model("../external/models/grass/scene.gltf");
-//   meshRenderer.shader = getOrCreateShader("../src/components/shaders/tree.vs",
-//                                           "../src/components/shaders/tree.fs");
-//   return grass;
-// }
-
 Entity Scene::createTestCube(glm::vec3 pos) {
   Entity cube = createEntity();
   LOG_WARN("TEST CUBE CREATED");
   auto &transform = cube.addComponent<TransformComponent>();
   transform.position = pos;
-  transform.scale = glm::vec3(0.1f);
+  transform.scale = glm::vec3(1.0f);
 
   auto &meshRenderer = cube.addComponent<MeshRendererComponent>();
-  meshRenderer.model = new Model("../external/models/cube/scene.gltf");
+  meshRenderer.model = new Model("../external/models/dibbba.glb");
   meshRenderer.shader = getOrCreateShader("../src/components/shaders/tree.vs",
                                           "../src/components/shaders/tree.fs");
 
   auto &rb = cube.addComponent<RigidBodyComponent>();
-  using namespace reactphysics3d;
-  Transform t(Vector3(pos.x, pos.y, pos.z), Quaternion::identity());
-  rb.body = engine.world->createRigidBody(t);
-  rb.body->setType(BodyType::DYNAMIC);
-  CollisionShape *shape = engine.pCommon.createBoxShape(Vector3(0.5f, 0.5f, 0.5f));
-  rb.body->addCollider(shape, Transform::identity());
+  {
+    using namespace reactphysics3d;
+    Transform t(Vector3(pos.x, pos.y, pos.z), Quaternion::identity());
+    rb.body = engine.world->createRigidBody(t);
+    rb.body->setType(BodyType::DYNAMIC);
+    // dibbba.glb measured at 2x2x2 (full size). createBoxShape takes
+    // HALF-extents, so this must be 1x1x1, not 2x2x2 - the previous value
+    // produced a collider twice the size of the visible mesh in every
+    // dimension, which is why cubes appeared to float/clip/tilt at rest:
+    // the (much bigger) invisible collider had already settled on the
+    // ground while the small visible mesh rendered wherever its center
+    // happened to be relative to that oversized box.
+    CollisionShape *shape = engine.pCommon.createBoxShape(Vector3(1.0f, 1.0f, 1.0f));
+    rb.body->addCollider(shape, Transform::identity());
+  }
+  // DYNAMIC body: transform.position/rotation set here is just the spawn
+  // pose. From the first engine.update() call onward, syncToECS() overwrites
+  // both every frame as the body falls/tumbles under gravity, so the mesh
+  // tracks the physics body exactly with no extra code needed in this file.
   return cube;
 }
