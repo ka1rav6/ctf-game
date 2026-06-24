@@ -35,8 +35,6 @@ void PhysicsEngine::syncToECS(Scene& scene) {
         Vector3 p = t.getPosition();
         Quaternion q = t.getOrientation();
         transform.position = {p.x, p.y, p.z};
-        glm::quat quat(q.w, q.x, q.y, q.z);
-        glm::vec3 euler = glm::eulerAngles(quat);
-        transform.rotation = glm::degrees(euler);
+        transform.orientation = glm::quat(q.w, q.x, q.y, q.z);
     }
 }

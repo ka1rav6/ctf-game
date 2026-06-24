@@ -24,9 +24,10 @@ void SceneSerializer::serialize(const std::string& path) const {
                      t.position.y,
                      t.position.z}},
                 {"rotation",
-                    {t.rotation.x,
-                     t.rotation.y,
-                     t.rotation.z}},
+                    {t.orientation.w,
+                     t.orientation.x,
+                     t.orientation.y,
+                     t.orientation.z}},
                 {"scale",
                     {t.scale.x,
                      t.scale.y,
@@ -48,11 +49,9 @@ void SceneSerializer::deserialize(const std::string& path) const {
         if(e.contains("Transform")){
             auto& t = entity.addComponent<TransformComponent>();
             auto pos = e["Transform"]["position"];
-            t.position = {
-                pos[0],
-                pos[1],
-                pos[2]
-            };
+            t.position = {pos[0], pos[1], pos[2]};
+            auto rot = e["Transform"]["rotation"];
+            t.orientation = glm::quat(rot[0], rot[1], rot[2], rot[3]);
         }
     }
 }

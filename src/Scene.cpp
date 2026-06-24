@@ -83,10 +83,10 @@ Entity Scene::createGround() {
   auto &transform = ground.addComponent<TransformComponent>();
   transform.position = {0.0f, 0.0f, 0.0f};
   auto &rb = ground.addComponent<RigidBodyComponent>();
-  auto &meshRenderer = ground.addComponent<MeshRendererComponent>();
-  meshRenderer.model = new Model("../external/models/cube/scene.gltf");
-  meshRenderer.shader = getOrCreateShader("../src/components/shaders/tree.vs",
-                                          "../src/components/shaders/tree.fs");
+  //auto &meshRenderer = ground.addComponent<MeshRendererComponent>();
+  //meshRenderer.model = new Model("../external/models/cube/scene.gltf");
+  //meshRenderer.shader = getOrCreateShader("../src/components/shaders/tree.vs",
+  //                                        "../src/components/shaders/tree.fs");
   {
     using namespace reactphysics3d;
     // Ground mesh renders at transform.position.y == 0.0, so the collider's
@@ -112,16 +112,15 @@ Entity Scene::createTree(glm::vec3 pos) {
   tree.addComponent<TagComponent>(TagComponent{"Tree"});
   auto &transform = tree.addComponent<TransformComponent>();
   transform.position = pos;
-  transform.rotation = glm::vec3(-90.0f, 0.0f, 0.0f); // degrees, matches syncToECS's convention
+  transform.orientation = glm::quat(glm::vec3(glm::radians(-90.0f), 0.0f, 0.0f));
   transform.scale = glm::vec3(0.01f);
   auto &rb = tree.addComponent<RigidBodyComponent>();
   {
     using namespace reactphysics3d;
     Transform physicsTransform(
         Vector3(transform.position.x, transform.position.y, transform.position.z),
-        Quaternion::fromEulerAngles(glm::radians(transform.rotation.x),
-                                    glm::radians(transform.rotation.y),
-                                    glm::radians(transform.rotation.z)));
+        Quaternion(transform.orientation.x, transform.orientation.y,
+                   transform.orientation.z, transform.orientation.w));
     rb.body = engine.world->createRigidBody(physicsTransform);
     rb.body->setType(BodyType::STATIC);
     CollisionShape *shape = engine.pCommon.createCapsuleShape(1.0f, 3.0f);

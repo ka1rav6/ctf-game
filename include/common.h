@@ -16,6 +16,7 @@
 #include "../external/glm/glm.hpp"
 #include "../external/glm/gtc/matrix_transform.hpp"
 #include "../external/glm/gtc/type_ptr.hpp"
+#include "../external/glm/gtc/quaternion.hpp"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/material.h>
