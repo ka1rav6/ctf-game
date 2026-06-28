@@ -8,13 +8,14 @@
 
 class SceneSerializer {
 public:
-    SceneSerializer(Scene* scene);
+    SceneSerializer(Scene* scene, unsigned int cubeVAO);
 
     void serialize(const std::string& path) const;
     void deserialize(const std::string& path) const;
 
 private:
     Scene* scene;
+    unsigned int cubeVAO;
 };
 
 

@@ -36,6 +36,8 @@ struct TagComponent{
 
 struct MeshRendererComponent{
     std::string meshPath;
+    std::string vertexPath;
+    std::string fragmentPath;
     Shader* shader;
     Model* model;
 };

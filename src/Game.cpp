@@ -21,7 +21,7 @@ Game::Game(bool mouseCaptured) {
     glfwSetKeyCallback(this->window, Game::key_callback);
     glfwSetMouseButtonCallback(this->window, Game::mouse_button_callback);
     LOG_INFO("Set all different callbacks successfully!");
-    this->editor = new Editor();
+    this->editor = new Editor(cubeVAO);
 }
 
 // initializes the window and all other member ptrs

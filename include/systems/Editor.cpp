@@ -1,9 +1,8 @@
-//
-// Created by kairav on 6/17/26.
-//
-
 #include "Editor.h"
 #include "../include/Entity_Components.h"
+#include "../include/SceneSerializer.h"
+
+Editor::Editor(unsigned int cubeVAO) : cubeVAO(cubeVAO) {}
 
 void Editor::render(Scene& scene, bool editorMode) {
     ImGui::Begin("Statistics");
@@ -59,6 +58,18 @@ void Editor::render(Scene& scene, bool editorMode) {
             }
             ImGui::TreePop();
         }
+    }
+    ImGui::End();
+
+    ImGui::Begin("Serialization");
+    if (ImGui::Button("Save Scene")) {
+        SceneSerializer ser(&scene, cubeVAO);
+        ser.serialize("scene.json");
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Load Scene")) {
+        SceneSerializer ser(&scene, cubeVAO);
+        ser.deserialize("scene.json");
     }
     ImGui::End();
 }

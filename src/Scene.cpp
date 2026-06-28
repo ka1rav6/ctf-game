@@ -127,10 +127,41 @@ Entity Scene::createTree(glm::vec3 pos) {
     rb.body->addCollider(shape, Transform::identity());
   }
   auto &meshRenderer = tree.addComponent<MeshRendererComponent>();
-  meshRenderer.model = new Model("../external/models/maple_tree/scene.gltf");
-  meshRenderer.shader = getOrCreateShader("../src/components/shaders/tree.vs",
-                                          "../src/components/shaders/tree.fs");
+  meshRenderer.meshPath = "../external/models/maple_tree/scene.gltf";
+  meshRenderer.vertexPath = "../src/components/shaders/tree.vs";
+  meshRenderer.fragmentPath = "../src/components/shaders/tree.fs";
+  meshRenderer.model = new Model(meshRenderer.meshPath);
+  meshRenderer.shader = getOrCreateShader(meshRenderer.vertexPath, meshRenderer.fragmentPath);
   return tree;
+}
+
+void Scene::clear() {
+  auto sunView = reg.view<SunComponent>();
+  for (auto e : sunView) {
+    delete sunView.get<SunComponent>(e).sun;
+    sunView.get<SunComponent>(e).sun = nullptr;
+  }
+
+  auto gridView = reg.view<InfiniteGridComponent>();
+  for (auto e : gridView) {
+    delete gridView.get<InfiniteGridComponent>(e).grid;
+    gridView.get<InfiniteGridComponent>(e).grid = nullptr;
+  }
+
+  auto meshView = reg.view<MeshRendererComponent>();
+  for (auto e : meshView) {
+    auto &mr = meshView.get<MeshRendererComponent>(e);
+    delete mr.model;
+    mr.model = nullptr;
+    mr.shader = nullptr;
+  }
+
+  for (auto& [key, shader] : shaderCache) {
+    delete shader;
+  }
+  shaderCache.clear();
+
+  reg.clear();
 }
 
 Entity Scene::createSun(unsigned int cubeVAO) {
@@ -159,9 +190,11 @@ Entity Scene::createTestCube(glm::vec3 pos) {
   transform.scale = glm::vec3(1.0f);
 
   auto &meshRenderer = cube.addComponent<MeshRendererComponent>();
-  meshRenderer.model = new Model("../external/models/dibbba.glb");
-  meshRenderer.shader = getOrCreateShader("../src/components/shaders/tree.vs",
-                                          "../src/components/shaders/tree.fs");
+  meshRenderer.meshPath = "../external/models/dibbba.glb";
+  meshRenderer.vertexPath = "../src/components/shaders/tree.vs";
+  meshRenderer.fragmentPath = "../src/components/shaders/tree.fs";
+  meshRenderer.model = new Model(meshRenderer.meshPath);
+  meshRenderer.shader = getOrCreateShader(meshRenderer.vertexPath, meshRenderer.fragmentPath);
 
   auto &rb = cube.addComponent<RigidBodyComponent>();
   {

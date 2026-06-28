@@ -9,8 +9,10 @@
 
 class Editor {
 public:
-    Editor() = default;
+    Editor(unsigned int cubeVAO);
     void render(Scene& scene, bool editorMode);
+private:
+    unsigned int cubeVAO;
 };
 
 #endif //MAIN_GAME_EDITOR_H

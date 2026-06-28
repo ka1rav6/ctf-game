@@ -21,6 +21,8 @@ public:
         return this->reg;
     };
     PhysicsEngine engine;
+    Shader* getOrCreateShader(const std::string& vs, const std::string& fs);
+    void clear();
 private:
     entt::registry reg;
     Entity createGround();
@@ -30,7 +32,6 @@ private:
     Entity createGrass(glm::vec3);
     Entity createGrid();
     std::unordered_map<std::string, Shader*> shaderCache;
-    Shader* getOrCreateShader(const std::string& vs, const std::string& fs);
     friend class Entity;
 };
 
