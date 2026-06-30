@@ -13,9 +13,9 @@ Game::Game(bool mouseCaptured) {
     // since GLFW only allows one callback per event type and we chain into
     // ImGui's handlers manually inside our own callbacks below.
     this->io = &MyImgui::init(this->window);
-    if (mouseCaptured) {
-        glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    }
+    // Always start in Menu state with visible cursor
+    state = GameState::Menu;
+    glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     glfwSetCursorPosCallback(this->window, Game::mouse_callback);
     glfwSetScrollCallback(this->window, Game::scroll_callback);
     glfwSetKeyCallback(this->window, Game::key_callback);
@@ -75,9 +75,8 @@ Game::~Game() {
     glfwTerminate();
 }
 // process the input of ECS key and mouse
-void Game::processInput() const {
-    if (glfwGetKey(this->window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(this->window, true);
+void Game::processInput() {
+    if (state != GameState::Playing) return;
     if (editorMode) return;
     if (glfwGetKey(this->window, GLFW_KEY_W) == GLFW_PRESS)
         camera->ProcessKeyboard(FORWARD, timer.deltaTime);
@@ -96,7 +95,7 @@ void Game::mouse_button_callback(GLFWwindow* window, int button, int action, int
 void Game::mouse_callback(GLFWwindow* window, double xposIn, double yposIn){
     ImGui_ImplGlfw_CursorPosCallback(window, xposIn, yposIn);
     Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
-    if (!game || game->editorMode) return;
+    if (!game || game->state != GameState::Playing || game->editorMode) return;
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
     if (game->firstMouse)
@@ -117,7 +116,7 @@ void Game::mouse_callback(GLFWwindow* window, double xposIn, double yposIn){
 void Game::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
     Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
-    if (!game || game->editorMode) return;
+    if (!game || game->state != GameState::Playing || game->editorMode) return;
     game->camera->ProcessMouseScroll(static_cast<float>(yoffset));
 }
 // flips between gameplay (cursor locked) and editor (cursor free, ImGui usable) mode
@@ -130,12 +129,28 @@ void Game::setEditorMode(bool enabled) {
         firstMouse = true; // prevents a camera snap from stale cursor deltas
     }
 }
-// F1 toggles editor mode on/off
+// handles ESC for pause/menu transitions, F1 toggles editor mode
 void Game::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
     Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
     if (!game) return;
-    if (key == GLFW_KEY_F1 && action == GLFW_PRESS) {
+
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+        switch (game->state) {
+            case GameState::Menu:
+            case GameState::GameOver:
+                glfwSetWindowShouldClose(window, true);
+                break;
+            case GameState::Playing:
+                game->setState(GameState::Paused);
+                break;
+            case GameState::Paused:
+                game->setState(GameState::Playing);
+                break;
+        }
+    }
+
+    if (key == GLFW_KEY_F1 && action == GLFW_PRESS && game->state == GameState::Playing) {
         game->setEditorMode(!game->editorMode);
     }
 }
@@ -161,14 +176,20 @@ void Game::run(){
         float currentFrame = static_cast<float>(glfwGetTime());
         timer.deltaTime = currentFrame - timer.lastFrame;
         timer.lastFrame = currentFrame;
+
         processInput();
+
+        if (state == GameState::Playing) {
+            scene->update(*camera);
+        }
+
         this->draw();
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 }
 // the actual drawing function called in the render loop : internally calls renderer to render component wise
-void Game::draw() const {
+void Game::draw() {
     // draw bg color
     glClearColor(
         settings.bgcolor.r,
@@ -177,11 +198,147 @@ void Game::draw() const {
         settings.bgcolor.a
     );
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glm::mat4 projection = glm::perspective( glm::radians(camera->Zoom), (float)settings.SCR_WIDTH / (float)settings.SCR_HEIGHT, 0.1f, 1000.0f );
-    scene->update(*camera);
-    renderer->render(*scene, *camera, projection);
-    MyImgui::beginFrame();
-    editor->render(*scene, editorMode);
-    MyImgui::endFrame();
 
+    // render scene in all states except Menu
+    if (state != GameState::Menu) {
+        glm::mat4 projection = glm::perspective( glm::radians(camera->Zoom), (float)settings.SCR_WIDTH / (float)settings.SCR_HEIGHT, 0.1f, 1000.0f );
+        renderer->render(*scene, *camera, projection);
+    }
+
+    MyImgui::beginFrame();
+
+    switch (state) {
+        case GameState::Menu:
+            renderMenu();
+            break;
+        case GameState::Playing:
+            editor->render(*scene, editorMode);
+            break;
+        case GameState::Paused:
+            editor->render(*scene, false);
+            renderPauseMenu();
+            break;
+        case GameState::GameOver:
+            renderGameOver();
+            break;
+    }
+
+    MyImgui::endFrame();
+}
+
+void Game::setState(GameState newState) {
+    state = newState;
+    switch (newState) {
+        case GameState::Playing:
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            firstMouse = true;
+            break;
+        default:
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            break;
+    }
+}
+
+void Game::renderMenu() {
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(
+        ImVec2(viewport->WorkPos.x + viewport->WorkSize.x * 0.5f,
+               viewport->WorkPos.y + viewport->WorkSize.y * 0.5f),
+        ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowBgAlpha(0.85f);
+
+    ImGui::Begin("##MainMenu", nullptr,
+        ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings);
+
+    ImGui::SetWindowFontScale(2.5f);
+    ImGui::TextColored(ImVec4(0.53f, 0.81f, 0.92f, 1.0f), "CTF IIITD");
+    ImGui::SetWindowFontScale(1.2f);
+    ImGui::Text("Capture The Flag");
+    ImGui::SetWindowFontScale(1.0f);
+    ImGui::Dummy(ImVec2(0.0f, 24.0f));
+
+    float bw = 200.0f;
+    if (showSettings) {
+        ImGui::Text("Settings");
+        ImGui::Separator();
+        ImGui::Dummy(ImVec2(0.0f, 6.0f));
+        ImGui::SliderFloat("Volume", &settingsVolume, 0.0f, 100.0f, "%.0f");
+        ImGui::Dummy(ImVec2(0.0f, 12.0f));
+        if (ImGui::Button("Back", ImVec2(bw, 0.0f))) {
+            showSettings = false;
+        }
+    } else {
+        if (ImGui::Button("Play", ImVec2(bw, 0.0f))) {
+            setState(GameState::Playing);
+        }
+        ImGui::Dummy(ImVec2(0.0f, 6.0f));
+        if (ImGui::Button("Settings", ImVec2(bw, 0.0f))) {
+            showSettings = true;
+        }
+        ImGui::Dummy(ImVec2(0.0f, 6.0f));
+        if (ImGui::Button("Quit", ImVec2(bw, 0.0f))) {
+            glfwSetWindowShouldClose(window, true);
+        }
+    }
+
+    ImGui::End();
+}
+
+void Game::renderPauseMenu() {
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(
+        ImVec2(viewport->WorkPos.x + viewport->WorkSize.x * 0.5f,
+               viewport->WorkPos.y + viewport->WorkSize.y * 0.5f),
+        ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowBgAlpha(0.85f);
+
+    ImGui::Begin("##PauseMenu", nullptr,
+        ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings);
+
+    ImGui::SetWindowFontScale(2.0f);
+    ImGui::Text("PAUSED");
+    ImGui::SetWindowFontScale(1.0f);
+    ImGui::Dummy(ImVec2(0.0f, 18.0f));
+
+    float bw = 180.0f;
+    if (ImGui::Button("Resume", ImVec2(bw, 0.0f))) {
+        setState(GameState::Playing);
+    }
+    ImGui::Dummy(ImVec2(0.0f, 6.0f));
+    if (ImGui::Button("Main Menu", ImVec2(bw, 0.0f))) {
+        setState(GameState::Menu);
+    }
+    ImGui::Dummy(ImVec2(0.0f, 6.0f));
+    if (ImGui::Button("Quit", ImVec2(bw, 0.0f))) {
+        glfwSetWindowShouldClose(window, true);
+    }
+
+    ImGui::End();
+}
+
+void Game::renderGameOver() {
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(
+        ImVec2(viewport->WorkPos.x + viewport->WorkSize.x * 0.5f,
+               viewport->WorkPos.y + viewport->WorkSize.y * 0.5f),
+        ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowBgAlpha(0.85f);
+
+    ImGui::Begin("##GameOver", nullptr,
+        ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings);
+
+    ImGui::SetWindowFontScale(2.5f);
+    ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.2f, 1.0f), "GAME OVER");
+    ImGui::SetWindowFontScale(1.0f);
+    ImGui::Dummy(ImVec2(0.0f, 20.0f));
+
+    // TODO: Show winner / scores once CTF logic is implemented
+    if (ImGui::Button("Main Menu", ImVec2(180.0f, 0.0f))) {
+        setState(GameState::Menu);
+    }
+
+    ImGui::End();
 }

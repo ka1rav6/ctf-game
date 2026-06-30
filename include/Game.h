@@ -25,8 +25,15 @@ struct Settings {
     float lastY = (float)SCR_HEIGHT / 2.0f;
 };
 struct Timer {
-    float deltaTime = 0.0f;	// time between current frame and last frame
+    float deltaTime = 0.0f; // time between current frame and last frame
     float lastFrame = 0.0f;
+};
+
+enum class GameState {
+    Menu,
+    Playing,
+    Paused,
+    GameOver
 };
 
 class Game {
@@ -36,12 +43,16 @@ public:
     ~Game();
     void run();
     void cleanup();
-    void draw() const;
+    void draw();
     bool isRunning() const {
         return !glfwWindowShouldClose(window);
     };
 private:
-    void processInput() const;
+    void processInput();
+    void setState(GameState newState);
+    void renderMenu();
+    void renderPauseMenu();
+    void renderGameOver();
     static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
     static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
     static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -55,6 +66,9 @@ private:
     Timer timer;
     bool firstMouse = true;
     bool editorMode = false;
+    GameState state = GameState::Menu;
+    bool showSettings = false;
+    float settingsVolume = 50.0f;
     Scene *scene;
     Renderer *renderer;
     unsigned int cubeVAO, VBO;
